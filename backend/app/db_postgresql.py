@@ -2,21 +2,35 @@
 Kết nối PostgreSQL (psycopg2).
 Bật bằng cách đặt biến môi trường: APP_DB=postgresql
 
-Cấu hình biến môi trường:
-  - APP_POSTGRES_HOST: localhost (mặc định)
-  - APP_POSTGRES_PORT: 5432 (mặc định)
-  - APP_POSTGRES_DATABASE: meeting_room_db (mặc định)
-  - APP_POSTGRES_USER: postgres (mặc định)
-  - APP_POSTGRES_PASSWORD: (bắt buộc nếu không dùng trust auth)
+Ưu tiên:
+  1. APP_DATABASE_URL — Neon / Supabase (postgresql://...?sslmode=require)
+  2. APP_POSTGRES_HOST, PORT, DATABASE, USER, PASSWORD — PostgreSQL local
 """
 from __future__ import annotations
 
 import os
+import re
 from contextlib import contextmanager
 from typing import Any
 
 import psycopg2
 import psycopg2.extras
+
+
+def _normalize_database_url(url: str) -> str:
+    """Neon URL đôi khi có channel_binding=require — gây lỗi trên Windows/psycopg2."""
+    cleaned = url.strip()
+    cleaned = re.sub(r"[&?]channel_binding=[^&]*", "", cleaned)
+    cleaned = cleaned.replace("?&", "?").rstrip("?&")
+    if "sslmode=" not in cleaned and "neon.tech" in cleaned:
+        sep = "&" if "?" in cleaned else "?"
+        cleaned = f"{cleaned}{sep}sslmode=require"
+    return cleaned
+
+
+def _database_url() -> str:
+    raw = (os.getenv("APP_DATABASE_URL") or os.getenv("DATABASE_URL") or "").strip()
+    return _normalize_database_url(raw) if raw else ""
 
 
 def _conn_string() -> str:
@@ -25,10 +39,18 @@ def _conn_string() -> str:
     database = os.getenv("APP_POSTGRES_DATABASE", "meeting_room_db")
     user = os.getenv("APP_POSTGRES_USER", "postgres")
     password = os.getenv("APP_POSTGRES_PASSWORD", "")
-    
+
     connstr = f"host={host} port={port} dbname={database} user={user}"
     if password:
         connstr += f" password={password}"
+    sslmode = (os.getenv("APP_POSTGRES_SSLMODE") or "").strip()
+    if not sslmode and (
+        "neon.tech" in host
+        or os.getenv("APP_POSTGRES_SSL", "").lower() in ("1", "true", "yes")
+    ):
+        sslmode = "require"
+    if sslmode:
+        connstr += f" sslmode={sslmode}"
     return connstr
 
 
@@ -95,7 +117,6 @@ class _PostgresConn:
         self._conn = conn
 
     def execute(self, sql: str, params: tuple = ()) -> _PostgresCursor:
-        # Chuyển ? thành %s cho PostgreSQL
         sql_pg = sql.replace("?", "%s")
         is_insert = sql_pg.strip().upper().startswith("INSERT")
         cur = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -104,18 +125,15 @@ class _PostgresConn:
         return pg_cursor
 
     def executescript(self, sql: str) -> None:
-        """Thực thi nhiều statement (được phân tách bằng ;)."""
         for stmt in sql.split(";"):
             stmt = stmt.strip()
             if stmt:
-                # Chuyển ? thành %s cho PostgreSQL
                 stmt_pg = stmt.replace("?", "%s")
                 try:
                     cur = self._conn.cursor()
                     cur.execute(stmt_pg)
                     cur.close()
                 except psycopg2.Error:
-                    # Bỏ qua lỗi (ví dụ CREATE TABLE IF NOT EXISTS đã tồn tại)
                     pass
 
     def commit(self) -> None:
@@ -129,7 +147,11 @@ class _PostgresConn:
 
 
 def _connect() -> _PostgresConn:
-    conn = psycopg2.connect(_conn_string())
+    url = _database_url()
+    if url:
+        conn = psycopg2.connect(url)
+    else:
+        conn = psycopg2.connect(_conn_string())
     return _PostgresConn(conn)
 
 
@@ -160,7 +182,6 @@ def init_auth_db() -> None:
                 created_at TIMESTAMP NOT NULL DEFAULT NOW()
             );
         """)
-        # Migrate roles cũ: employee/agent -> customer, và chuẩn hóa CHECK constraint.
         try:
             conn.execute("UPDATE users SET role = 'customer' WHERE role IN ('employee','agent')")
         except Exception:
@@ -170,15 +191,21 @@ def init_auth_db() -> None:
         except Exception:
             pass
         try:
-            conn.execute("ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('customer','admin'))")
+            conn.execute(
+                "ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('customer','admin'))"
+            )
         except Exception:
             pass
         try:
-            conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS oauth_provider VARCHAR(20) NOT NULL DEFAULT ''")
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS oauth_provider VARCHAR(20) NOT NULL DEFAULT ''"
+            )
         except Exception:
             pass
         try:
-            conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS oauth_provider_id VARCHAR(255) NOT NULL DEFAULT ''")
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS oauth_provider_id VARCHAR(255) NOT NULL DEFAULT ''"
+            )
         except Exception:
             pass
         conn.executescript("""
@@ -238,6 +265,12 @@ def init_booking_db() -> None:
         try:
             conn.execute(
                 "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_channel VARCHAR(20) NOT NULL DEFAULT ''"
+            )
+        except Exception:
+            pass
+        try:
+            conn.execute(
+                "ALTER TABLE bookings ADD COLUMN IF NOT EXISTS refund_confirmed_at TIMESTAMP NULL"
             )
         except Exception:
             pass
