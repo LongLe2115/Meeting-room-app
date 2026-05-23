@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng nhập — Meeting Room Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./login-page.css?v=8" />
+  </head>
+  <body class="account-page page-shell account-page--customer">
+    <div class="account-bg" aria-hidden="true"></div>
+
+    <div class="account-wrap">
+      <div class="account-back-row">
+        <a href="./index.html" class="account-back-link">← Trở về trang chủ</a>
+        <span class="account-admin-hint">Quản trị viên? <a href="./admin-login.html" class="account-admin-link">Đăng nhập quản trị</a></span>
+      </div>
+      <div class="account-card">
+        <div class="account-card-header">
+          <p class="account-brand">Meeting Room Pro</p>
+          <h1 id="accountTitle">Đăng nhập</h1>
+          <p class="account-card-subtitle">Tài khoản khách hàng — đặt phòng họp</p>
+        </div>
+
+        <div class="account-card-body">
+          <div class="account-tabs">
+            <button type="button" class="account-tab active" data-tab="login">Đăng nhập</button>
+            <button type="button" class="account-tab" data-tab="register">Đăng ký</button>
+          </div>
+
+          <div id="tab-forgot" class="account-panel hidden">
+            <p class="account-forgot-intro">
+              Nhập email đã đăng ký (Gmail hoặc email khác).
+              <strong>Không gửi email vào hộp thư</strong> — sau khi gửi yêu cầu, bấm
+              <strong>liên kết đặt lại mật khẩu</strong> hiện ngay bên dưới (chế độ demo).
+            </p>
+            <label class="account-field">
+              <span class="account-field-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>
+              </span>
+              <input id="forgotEmail" type="email" class="account-input" placeholder="Email" autocomplete="email" />
+            </label>
+            <button type="button" id="btnForgotSubmit" class="account-btn">Gửi yêu cầu đặt lại mật khẩu</button>
+            <div id="forgotResult" class="account-forgot-result hidden" role="status"></div>
+            <p class="account-forgot-back-wrap">
+              <a href="#" class="account-forgot-back" id="backToLogin">← Quay lại đăng nhập</a>
+            </p>
+          </div>
+
+          <div id="tab-login" class="account-panel">
+            <label class="account-field">
+              <span class="account-field-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>
+              </span>
+              <input id="loginEmail" type="email" class="account-input" placeholder="Email" autocomplete="email" />
+            </label>
+            <label class="account-field">
+              <span class="account-field-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input id="loginPassword" type="password" class="account-input" placeholder="Mật khẩu" autocomplete="current-password" />
+            </label>
+            <div class="account-options">
+              <label class="account-remember">
+                <input type="checkbox" id="rememberMe" />
+                <span class="account-switch"></span>
+                <span>Ghi nhớ đăng nhập</span>
+              </label>
+              <a href="#" class="account-forgot" id="forgotPassword">Quên mật khẩu?</a>
+            </div>
+            <button type="button" id="btnLogin" class="account-btn">Đăng nhập</button>
+          </div>
+
+          <div id="tab-register" class="account-panel hidden">
+            <label class="account-field account-field--plain">
+              <input id="regFirstName" type="text" class="account-input" placeholder="Tên của Bạn" autocomplete="given-name" />
+            </label>
+            <label class="account-field account-field--plain">
+              <input id="regLastName" type="text" class="account-input" placeholder="Họ của Bạn" autocomplete="family-name" />
+            </label>
+            <label class="account-field account-field--plain">
+              <input id="regEmail" type="email" class="account-input" placeholder="Email" autocomplete="email" />
+            </label>
+            <label class="account-field account-field--plain">
+              <input id="regPassword" type="password" class="account-input" placeholder="Mật khẩu" autocomplete="new-password" />
+            </label>
+            <label class="account-field account-field--plain">
+              <input id="regPasswordConfirm" type="password" class="account-input" placeholder="Xác nhận mật khẩu" autocomplete="new-password" />
+            </label>
+            <button type="button" id="btnRegister" class="account-btn account-btn--register">Đăng ký</button>
+          </div>
+
+          <div class="account-social">
+            <p class="account-social-title">Đăng nhập thông qua mạng xã hội</p>
+            <div class="account-social-row">
+              <button type="button" id="btnFacebookLogin" class="account-social-btn account-social-btn--facebook" title="Facebook" aria-label="Đăng nhập bằng Facebook">
+                <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M22 12a10 10 0 1 0-11.5 9.9v-7H7.9V12h2.6V9.8c0-2.6 1.5-4 3.9-4 1.1 0 2.2.2 2.2.2v2.5h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12Z"/></svg>
+              </button>
+              <div class="account-google-hit" title="Google" aria-label="Đăng nhập bằng Google">
+                <span class="account-social-btn account-social-btn--google account-google-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22"><path fill="#EA4335" d="M12 10.2v3.6h5.1c-.2 1.2-1.5 3.6-5.1 3.6-3.1 0-5.6-2.5-5.6-5.6S8.9 6.2 12 6.2c1.8 0 3 .8 3.7 1.5l2.5-2.4C16.8 3.6 14.6 2.6 12 2.6 6.9 2.6 2.7 6.8 2.7 12s4.2 9.4 9.3 9.4c5.4 0 9-3.8 9-9.2 0-.6-.1-1.1-.2-1.6H12Z"/><path fill="#34A853" d="M3.9 7.3 7 9.8C8 7.6 9.8 6.2 12 6.2c1.8 0 3 .8 3.7 1.5l2.5-2.4C16.8 3.6 14.6 2.6 12 2.6 8.4 2.6 5.3 5 3.9 7.3Z"/><path fill="#FBBC05" d="M12 21.4c2.7 0 5-.9 6.6-2.4l-3.1-2.5c-.9.6-2 .9-3.5.9-2.7 0-5-1.8-5.8-4.2L3.8 16c1.4 2.8 4.3 5.4 8.2 5.4Z"/><path fill="#4285F4" d="M21.8 12.2c0-.6-.1-1.2-.2-1.7H12v3.3h5.5c-.2 1.2-1 2.9-2.6 3.8l3.1 2.4c1.8-1.7 3.8-4.2 3.8-7.8Z"/></svg>
+                </span>
+                <div id="googleSignInWrap" class="account-google-overlay"></div>
+              </div>
+            </div>
+            <p id="oauthHint" class="account-oauth-hint hidden"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="fb-root"></div>
+
+    <script src="./shared.js?v=11"></script>
+    <script src="./login.js?v=3"></script>
+  </body>
+</html>

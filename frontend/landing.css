@@ -1,0 +1,598 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.landing-page {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #111827;
+  background: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  font-size: 19px;
+}
+
+.landing-header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.landing-header-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.landing-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #020617;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #f9fafb;
+}
+
+.landing-logo-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.landing-logo-title {
+  font-weight: 600;
+}
+
+.landing-logo-sub {
+  opacity: 0.8;
+  font-size: 0.75rem;
+}
+
+.landing-logo-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.landing-logo-title {
+  font-weight: 600;
+}
+
+.landing-logo-light {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.landing-logo-sub {
+  opacity: 0.7;
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.landing-nav-link {
+  color: #4b5563;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.landing-nav-link:hover {
+  color: #020617;
+}
+
+.landing-login-btn {
+  border-radius: 999px;
+  padding: 10px 26px;
+  border: 1px solid #16a34a;
+  font-size: 1rem;
+  cursor: pointer;
+  background: transparent;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.landing-auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.landing-login-btn.primary {
+  background: #16a34a;
+  color: #ecfdf5;
+}
+
+.landing-login-btn.ghost {
+  background: transparent;
+  color: #16a34a;
+}
+
+.landing-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px 96px;
+  background:
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.96)),
+    url("https://images.pexels.com/photos/260689/pexels-photo-260689.jpeg?auto=compress&cs=tinysrgb&w=1600")
+      center/cover fixed no-repeat;
+}
+
+.landing-hero {
+  max-width: 1500px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.landing-hero-text h1 {
+  margin: 0 0 14px;
+  font-size: 3rem;
+  line-height: 1.25;
+  color: #f9fafb;
+}
+
+.landing-hero-text p {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #e5e7eb;
+}
+
+.landing-hero-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.landing-devices-inline {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.device-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.75);
+  font-size: 0.8rem;
+  color: #e5e7eb;
+}
+
+.device-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #16a34a;
+}
+
+.landing-cta {
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.landing-cta.main {
+  background: #16a34a;
+  color: #e5f9f0;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.45);
+}
+
+.landing-cta.outline {
+  background: transparent;
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.7);
+}
+
+.landing-hero-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-video {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  transform: skewX(-10deg);
+}
+
+.landing-video-inner {
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.5), transparent 60%),
+    #020617;
+  transform: skewX(10deg);
+  position: relative;
+}
+
+.landing-video-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: #020617;
+}
+
+/* Nền đơn giản cho các trang con (pricing/devices/customers/news) */
+.landing-main.simple {
+  background: #f3f4f6;
+  padding: 48px 32px 72px;
+}
+
+/* Generic sections below hero */
+.landing-section {
+  width: 100%;
+  padding: 40px 0 16px;
+}
+
+.landing-section-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+.landing-section h2 {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+  color: #111827;
+}
+
+.landing-section-sub {
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Pricing */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.pricing-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 22px 26px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(209, 213, 219, 0.9);
+}
+
+.pricing-card.outlined {
+  background: #f9fafb;
+}
+
+.pricing-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin-bottom: 12px;
+}
+
+.pricing-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.pricing-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.pricing-currency,
+.pricing-period {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.pricing-note {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0 0 14px;
+}
+
+.pricing-cta {
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: none;
+  background: #16a34a;
+  color: #ecfdf5;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.pricing-cta.ghost {
+  background: transparent;
+  color: #16a34a;
+  border: 1px solid #16a34a;
+}
+
+.pricing-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.85rem;
+  color: #4b5563;
+  display: grid;
+  gap: 4px;
+}
+
+/* Devices */
+.devices-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.devices-text h3 {
+  margin: 0 0 6px;
+  font-size: 1.3rem;
+}
+
+.devices-text p {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.devices-text ul {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.devices-cta {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid #16a34a;
+  background: transparent;
+  color: #16a34a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.devices-media {
+  display: flex;
+  justify-content: center;
+}
+
+.devices-img {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 14px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.35);
+  display: block;
+}
+
+/* Customers */
+.customers-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.customer-logo {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+/* Blog */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.blog-card {
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-thumb {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+}
+
+.blog-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.blog-body {
+  padding: 14px 14px 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.blog-body h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.blog-body p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.blog-link {
+  justify-self: flex-start;
+  margin-top: 4px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid #16a34a;
+  background: transparent;
+  color: #16a34a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.landing-screen-header {
+  padding: 10px 14px;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.78rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.landing-screen-body {
+  padding: 18px 16px 24px;
+  background: linear-gradient(135deg, #020617 0%, #111827 35%, #0f766e 100%);
+}
+
+.landing-screen-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 14px;
+  padding: 14px 12px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  display: grid;
+  gap: 10px;
+}
+
+.landing-screen-row {
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.landing-screen-btn {
+  margin-top: 4px;
+  width: 80px;
+  border-radius: 999px;
+  padding: 6px 10px;
+  border: none;
+  background: #22c55e;
+  color: #052e16;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.landing-play-btn {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: #22c55e;
+  color: #052e16;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(34, 197, 94, 0.55);
+}
+
+@media (max-width: 900px) {
+  .landing-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .landing-main {
+    align-items: flex-start;
+  }
+  .pricing-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .devices-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .customers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .blog-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .landing-nav {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .landing-hero-text h1 {
+    font-size: 1.5rem;
+  }
+}

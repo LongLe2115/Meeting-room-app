@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Room Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 6rem;
+        /* Phóng to giao diện (~19px gốc, mọi rem Tailwind tăng theo) */
+        font-size: 118.75%;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      /* Nền tổng thể dạng ảnh + overlay đậm, cảm giác nền tảng doanh nghiệp sang trọng */
+      .page-shell {
+        min-height: 100vh;
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(15, 23, 42, 0.94),
+            rgba(15, 23, 42, 0.97)
+          ),
+          url("https://images.pexels.com/photos/260689/pexels-photo-260689.jpeg?auto=compress&cs=tinysrgb&w=1600")
+            center/cover fixed no-repeat;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      .glow-emerald {
+        box-shadow: 0 0 40px -10px rgba(5, 150, 105, 0.15);
+      }
+    </style>
+  </head>
+  <body
+    class="page-shell text-slate-600 antialiased selection:bg-emerald-100 selection:text-emerald-900 flex flex-col"
+  >
+    <!-- Navigation -->
+    <nav
+      class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-md border-b border-slate-200/50 transition-all duration-300"
+    >
+      <div
+        class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-20 h-20 md:h-[5.25rem] flex items-center gap-3"
+      >
+        <!-- Logo -->
+        <div class="flex items-center gap-2 shrink-0 min-w-0">
+          <div
+            class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shrink-0"
+          >
+            <iconify-icon
+              icon="solar:buildings-linear"
+              style="stroke-width: 1.5"
+              class="text-xl"
+            ></iconify-icon>
+          </div>
+          <span class="font-medium text-xl tracking-tighter text-slate-900"
+            >MRP</span
+          >
+        </div>
+
+        <!-- Main Menu (Desktop): căn giữa theo chiều ngang màn hình -->
+        <div
+          class="hidden md:flex flex-1 items-center justify-center gap-6 lg:gap-8 min-w-0"
+        >
+          <a
+            href="./index.html"
+            class="text-base font-medium text-slate-900 whitespace-nowrap"
+            >Trang chủ</a
+          >
+          <a
+            href="#roomTypesSection"
+            class="text-base text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+            >Loại phòng họp</a
+          >
+          <a
+            href="#customersSection"
+            class="text-base text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+            >Khách hàng</a
+          >
+          <a
+            href="#newsSection"
+            class="text-base text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+            >Tin tức</a
+          >
+          <a
+            href="#contactSection"
+            class="text-base text-slate-500 hover:text-slate-900 transition-colors whitespace-nowrap"
+            >Liên hệ</a
+          >
+        </div>
+
+        <!-- Right Actions -->
+        <div class="flex items-center gap-3 sm:gap-4 shrink-0 ml-auto md:ml-0">
+          <button
+            id="btnNavLogin"
+            class="text-base text-slate-500 hover:text-slate-900 transition-colors hidden sm:block"
+          >
+            Đăng nhập
+          </button>
+          <button
+            id="btnNavRegister"
+            class="bg-slate-900 text-white text-base font-medium px-6 py-2.5 rounded-full hover:bg-slate-800 transition-colors shadow-sm"
+          >
+            Đăng ký
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section
+      class="relative pt-36 pb-24 lg:pt-44 lg:pb-32 overflow-hidden"
+    >
+      <!-- Subtle Background Gradients -->
+      <div
+        class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-400/10 blur-[100px] rounded-full pointer-events-none"
+      ></div>
+      <div
+        class="absolute top-40 -right-40 w-[500px] h-[500px] bg-blue-400/10 blur-[100px] rounded-full pointer-events-none"
+      ></div>
+
+      <div class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 relative z-10">
+        <div
+          class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center"
+        >
+          <!-- Left Content -->
+          <div class="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl">
+            <div
+              class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium mb-6"
+            >
+              <span
+                class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"
+              ></span>
+              Meeting Room Pro 2.0
+            </div>
+            <h1
+              class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-medium tracking-tighter text-white leading-[1.08]"
+            >
+              Hệ thống đặt phòng họp 
+            </h1>
+            <p
+              class="text-lg sm:text-xl lg:text-2xl text-slate-200 mt-8 leading-relaxed max-w-3xl xl:max-w-4xl font-light"
+            >
+              Nền tảng quản lý và đặt phòng họp thông minh giúp doanh nghiệp dễ dàng lên lịch cuộc họp, theo dõi trạng thái phòng theo thời gian thực và tối ưu hóa việc sử dụng không gian họp với giao diện hiện đại, trực quan và chuyên nghiệp.
+            </p>
+            <div class="flex flex-wrap items-center gap-5 mt-10">
+              <button
+                id="btnExplore"
+                class="bg-emerald-600 text-white text-base font-medium px-8 py-3.5 rounded-full hover:bg-emerald-700 transition-all shadow-sm shadow-emerald-200 flex items-center gap-2 group"
+              >
+                Khám phá
+                <iconify-icon
+                  icon="solar:arrow-right-linear"
+                  style="stroke-width: 1.5"
+                  class="text-lg group-hover:translate-x-1 transition-transform"
+                ></iconify-icon>
+              </button>
+              <button
+                id="btnBookNow"
+                class="bg-white text-slate-700 border border-slate-200 text-base font-medium px-8 py-3.5 rounded-full hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+              >
+                <iconify-icon
+                  icon="solar:calendar-add-linear"
+                  style="stroke-width: 1.5"
+                  class="text-lg"
+                ></iconify-icon>
+                Đặt phòng ngay
+              </button>
+            </div>
+            <!-- bỏ dòng "được tin dùng bởi..." theo yêu cầu -->
+          </div>
+
+          <!-- Right: video phòng họp (dùng video ban đầu) -->
+          <div
+            class="relative w-full max-w-2xl mx-auto lg:max-w-none lg:flex-1 lg:min-w-0 lg:ml-auto"
+          >
+            <div
+              class="relative w-full bg-white rounded-[2rem] p-3 shadow-xl shadow-slate-200/50 border border-slate-100 mt-[5%] glow-emerald overflow-hidden"
+            >
+              <video
+                class="w-full h-[min(60vh,680px)] min-h-[380px] md:min-h-[480px] rounded-[1.5rem] object-cover"
+                src="./7613461927317.mp4"
+                autoplay
+                muted
+                loop
+                playsinline
+                controls
+              >
+                Trình duyệt của bạn không hỗ trợ video HTML5.
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard Stats (dynamic from backend) -->
+    <section
+      id="statsSection"
+      class="py-14 lg:py-16 bg-white border-y border-slate-100"
+    >
+      <div class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          <!-- Stat Card 1 -->
+          <div
+            class="p-5 sm:p-6 lg:p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+          >
+            <div
+              class="flex items-center justify-between mb-4"
+            >
+              <p
+                class="text-xs font-medium text-slate-500 uppercase tracking-wider"
+              >
+                Tổng số phòng
+              </p>
+              <iconify-icon
+                icon="solar:buildings-2-linear"
+                class="text-slate-400 text-lg"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <h3
+                class="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tighter text-slate-900"
+              >
+                <span id="statTotalRooms">0</span>
+              </h3>
+              <span
+                id="statRoomsSubtitle"
+                class="text-xs text-emerald-600 flex items-center gap-1"
+                ><iconify-icon
+                  icon="solar:check-circle-linear"
+                ></iconify-icon>
+                <span id="statFreeNowText">—</span></span
+              >
+            </div>
+          </div>
+          <!-- Stat Card 2 -->
+          <div
+            class="p-5 sm:p-6 lg:p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+          >
+            <div
+              class="flex items-center justify-between mb-4"
+            >
+              <p
+                class="text-xs font-medium text-slate-500 uppercase tracking-wider"
+              >
+                Đang sử dụng (đang họp)
+              </p>
+              <iconify-icon
+                icon="solar:users-group-two-rounded-linear"
+                class="text-emerald-500 text-lg"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <h3
+                class="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tighter text-slate-900"
+              >
+                <span id="statInUse">0</span>
+              </h3>
+              <span class="text-xs text-slate-400"
+                >/ <span id="statRoomsForUsage">0</span> phòng</span
+              >
+            </div>
+            <div
+              class="w-full bg-slate-200 h-1.5 rounded-full mt-3 overflow-hidden"
+            >
+              <div
+                id="statUsageBar"
+                class="bg-emerald-500 h-full rounded-full"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+          <!-- Stat Card 3 -->
+          <div
+            class="p-5 sm:p-6 lg:p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+          >
+            <div
+              class="flex items-center justify-between mb-4"
+            >
+              <p
+                class="text-xs font-medium text-slate-500 uppercase tracking-wider"
+              >
+                Lịch hôm nay
+              </p>
+              <iconify-icon
+                icon="solar:calendar-linear"
+                class="text-slate-400 text-lg"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <h3
+                class="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tighter text-slate-900"
+              >
+                <span id="statTodayMeetings">0</span>
+              </h3>
+              <span class="text-xs text-slate-400"
+                >Cuộc họp</span
+              >
+            </div>
+          </div>
+          <!-- Stat Card 4 -->
+          <div
+            class="p-5 sm:p-6 lg:p-8 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+          >
+            <div
+              class="flex items-center justify-between mb-4"
+            >
+              <p
+                class="text-xs font-medium text-slate-500 uppercase tracking-wider"
+              >
+                Hiệu suất
+              </p>
+              <iconify-icon
+                icon="solar:chart-square-linear"
+                class="text-slate-400 text-lg"
+              ></iconify-icon>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <h3
+                class="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tighter text-slate-900"
+              >
+                <span id="statUtilization">0%</span>
+              </h3>
+              <span
+                class="text-xs text-emerald-500 flex items-center"
+                ><iconify-icon
+                  icon="solar:arrow-right-up-linear"
+                ></iconify-icon>
+                +5%</span
+              >
+            </div>
+            <!-- Mini abstract chart -->
+            <div
+              class="flex items-end gap-1 h-4 mt-2"
+            >
+              <div
+                class="w-full bg-slate-200 h-2 rounded-t-sm"
+              ></div>
+              <div
+                class="w-full bg-slate-200 h-3 rounded-t-sm"
+              ></div>
+              <div
+                class="w-full bg-emerald-200 h-4 rounded-t-sm"
+              ></div>
+              <div
+                class="w-full bg-slate-200 h-2 rounded-t-sm"
+              ></div>
+              <div
+                class="w-full bg-emerald-500 h-full rounded-t-sm"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area (Rooms & Calendar) -->
+    <section id="roomTypesSection" class="py-20 flex-grow">
+      <div
+        class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 grid grid-cols-1 xl:grid-cols-3 gap-12"
+      >
+        <!-- Left Column: Room List -->
+        <div class="xl:col-span-2">
+          <div class="flex items-end justify-between mb-8">
+            <div>
+              <h2
+                class="text-2xl font-medium tracking-tight text-white"
+              >
+                Loại phòng họp
+              </h2>
+              <p
+                class="text-sm text-slate-200/80 mt-1 font-light"
+              >
+                Quản lý và đặt phòng nhanh chóng
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Custom Filters Mockup -->
+              <button
+                id="btnRoomFilter"
+                class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                <iconify-icon
+                  icon="solar:filter-linear"
+                ></iconify-icon>
+                Lọc
+              </button>
+            </div>
+          </div>
+
+          <!-- Room Grid (dữ liệu từ /public/dashboard-stats) -->
+          <div
+            id="homeRoomsEmpty"
+            class="hidden rounded-[1.5rem] border border-dashed border-slate-600/80 bg-slate-900/40 px-6 py-10 text-center text-sm text-slate-300"
+          >
+            Chưa có phòng hoạt động hoặc chưa tải được dữ liệu. Hãy kiểm tra backend
+            và danh sách phòng trong hệ thống.
+          </div>
+          <div
+            id="homeRoomsGrid"
+            class="grid grid-cols-1 md:grid-cols-2 gap-6"
+          ></div>
+        </div>
+
+        <!-- Right Column: Mini Calendar/Schedule -->
+        <div class="xl:col-span-1">
+          <div
+            class="bg-slate-900/90 text-slate-50 rounded-[1.5rem] border border-slate-700 shadow-xl p-6 sticky top-24 backdrop-blur"
+          >
+            <div
+              class="flex items-center justify-between mb-6"
+            >
+              <h2
+                class="text-lg font-medium tracking-tight text-white"
+              >
+                Lịch hôm nay
+              </h2>
+              <div
+                class="flex items-center gap-1 bg-slate-50 p-1 rounded-lg border border-slate-100"
+              >
+                <button
+                  class="px-2 py-1 text-xs font-medium rounded-md bg-white shadow-sm text-slate-900"
+                >
+                  Ngày
+                </button>
+                <button
+                  class="px-2 py-1 text-xs text-slate-500 hover:text-slate-900"
+                >
+                  Tuần
+                </button>
+              </div>
+            </div>
+
+            <!-- Date Picker -->
+            <div
+              class="flex justify-between items-center mb-6"
+            >
+              <button
+                class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-full transition-colors"
+              >
+                <iconify-icon
+                  icon="solar:alt-arrow-left-linear"
+                ></iconify-icon>
+              </button>
+              <p
+                class="text-sm font-medium text-slate-50 tracking-tight"
+                id="scheduleCurrentRange"
+              >
+                Lịch họp hôm nay
+              </p>
+              <button
+                class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-full transition-colors"
+              >
+                <iconify-icon
+                  icon="solar:alt-arrow-right-linear"
+                ></iconify-icon>
+              </button>
+            </div>
+
+            <!-- Timeline (data-driven) -->
+            <div
+              id="scheduleTimeline"
+              class="relative pl-12 space-y-4 before:absolute before:inset-0 before:ml-[34px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-px before:bg-gradient-to-b before:from-transparent before:via-slate-700 before:to-transparent text-xs"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customers section -->
+    <section
+      id="customersSection"
+      class="py-20 lg:py-24 bg-white border-t border-slate-200/60"
+    >
+      <div
+        class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24"
+      >
+        <div class="w-full max-w-4xl lg:max-w-5xl mx-auto text-center mb-10 lg:mb-14">
+          <p
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium"
+          >
+            Khách hàng
+          </p>
+          <h2
+            class="mt-4 text-3xl sm:text-4xl lg:text-[2.25rem] font-medium tracking-tight text-slate-900"
+          >
+            Được tin dùng bởi nhiều doanh nghiệp
+          </h2>
+          <p class="mt-4 text-base sm:text-lg text-slate-500 max-w-2xl mx-auto">
+            Chúng tôi đang được tin dùng bởi hàng trăm công ty trên thế giới.
+          </p>
+        </div>
+
+        <!-- Logo: ./logo/ — lưới 3×3 full chiều ngang, ô lớn hơn -->
+        <div
+          class="grid grid-cols-3 gap-3 sm:gap-5 md:gap-6 lg:gap-8 w-full text-sm text-slate-700"
+        >
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/adidas.png"
+              alt="Adidas"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/chanel.png"
+              alt="Chanel"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/gucci.png"
+              alt="Gucci"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/H&M.png"
+              alt="H&M"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/Hermes.png"
+              alt="Hermes"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/LV.png"
+              alt="Louis Vuitton"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/nike.png"
+              alt="Nike"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/prada.png"
+              alt="Prada"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+          <div
+            class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white min-h-[88px] sm:min-h-[110px] md:min-h-[128px] lg:min-h-[148px] py-5 sm:py-7 md:py-8 px-3 sm:px-5 shadow-sm"
+          >
+            <img
+              src="./logo/versace.png"
+              alt="Versace"
+              class="max-h-11 sm:max-h-14 md:max-h-[4.5rem] lg:max-h-20 w-full object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- News section -->
+    <section
+      id="newsSection"
+      class="py-16 bg-slate-50 border-t border-slate-200/60"
+    >
+      <div class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
+        <div class="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto text-center mb-8">
+          <p
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium"
+          >
+            Tin tức &amp; blog
+          </p>
+          <h2
+            class="mt-4 text-2xl sm:text-3xl font-medium tracking-tight text-slate-900"
+          >
+            Câu chuyện về không gian làm việc thông minh
+          </h2>
+          <p class="mt-3 text-sm text-slate-500">
+            Cập nhật xu hướng mới nhất về không gian làm việc và họp thông
+            minh.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <article
+            class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"
+          >
+            <div class="h-40 overflow-hidden">
+              <img
+                class="w-full h-full object-cover"
+                src="https://images.pexels.com/photos/1181395/pexels-photo-1181395.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                alt="Phòng họp hiện đại"
+              />
+            </div>
+            <div class="p-4 flex flex-col gap-2 text-sm">
+              <h3 class="font-medium text-slate-900">
+                Nâng cấp phòng họp: 3 xu hướng cải tiến giúp không gian làm việc hiệu quả nhất
+              </h3>
+              <p class="text-slate-600">
+                Một phòng họp hiện đại không chỉ đảm bảo chất lượng âm thanh và hình ảnh mà còn mang đến một môi trường thoải mái cho các cuộc họp.
+              </p>
+              <a
+                href="https://www.mspvn.com/nang-cap-phong-hop-cai-tien-khong-gian-lam-viec/"
+                target="_blank"
+                rel="noopener"
+                class="mt-2 self-start inline-flex px-3 py-1.5 rounded-full border border-emerald-600 text-emerald-700 text-xs font-medium hover:bg-emerald-50 transition-colors"
+              >
+                Xem thêm
+              </a>
+            </div>
+          </article>
+
+          <article
+            class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"
+          >
+            <div class="h-40 overflow-hidden">
+              <img
+                class="w-full h-full object-cover"
+                src="https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                alt="Màn hình cửa phòng họp"
+              />
+            </div>
+            <div class="p-4 flex flex-col gap-2 text-sm">
+              <h3 class="font-medium text-slate-900">
+                Tìm hiểu các mô hình phòng họp hội nghị được ưa chuộng nhất hiện nay
+              </h3>
+              <p class="text-slate-600">
+                Phòng họp hội nghị là nơi trao đổi thông tin và đưa ra các quyết định chiến lược của doanh nghiệp.
+              </p>
+              <a
+                href="https://trungchinhaudio.vn/phong-hop-hoi-nghi.html?srsltid=AfmBOooGkkMXY4QyVUHjhSTiX13uqgbJ4ccqk3TA-kS3Q72BMbcrk-Ci"
+                target="_blank"
+                rel="noopener"
+                class="mt-2 self-start inline-flex px-3 py-1.5 rounded-full border border-emerald-600 text-emerald-700 text-xs font-medium hover:bg-emerald-50 transition-colors"
+              >
+                Xem thêm
+              </a>
+            </div>
+          </article>
+
+          <article
+            class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col"
+          >
+            <div class="h-40 overflow-hidden">
+              <img
+                class="w-full h-full object-cover"
+                src="https://images.pexels.com/photos/1181400/pexels-photo-1181400.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                alt="Lịch họp trên laptop"
+              />
+            </div>
+            <div class="p-4 flex flex-col gap-2 text-sm">
+              <h3 class="font-medium text-slate-900">
+                Giải Pháp Phòng Họp Thông Minh Là Gì? Giúp Hướng Tới Thành Môi Trường Làm Việc Kết Hợp Như Thế Nào?
+              </h3>
+              <p class="text-slate-600">
+                Làm thế nào để quản lý có một cuộc họp kết hợp thành công?
+              </p>
+              <a
+                href="https://www.ricoh.com.vn/blogs-and-insights/giai-phap-phong-hop-thong-minh"
+                target="_blank"
+                rel="noopener"
+                class="mt-2 self-start inline-flex px-3 py-1.5 rounded-full border border-emerald-600 text-emerald-700 text-xs font-medium hover:bg-emerald-50 transition-colors"
+              >
+                Xem thêm
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact section -->
+    <section
+      id="contactSection"
+      class="py-16 bg-white border-t border-slate-200/60"
+    >
+      <div class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+          <div>
+            <p
+              class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-medium"
+            >
+              Liên hệ
+            </p>
+            <h2
+              class="mt-4 text-2xl sm:text-3xl font-medium tracking-tight text-slate-900"
+            >
+              Trao đổi về nhu cầu triển khai Meeting Room Pro
+            </h2>
+            <p class="mt-3 text-sm text-slate-600">
+              Hãy để lại thông tin, đội ngũ của chúng tôi sẽ liên hệ lại để tư
+              vấn giải pháp phù hợp cho doanh nghiệp của bạn.
+            </p>
+
+            <div class="mt-6 space-y-2 text-sm text-slate-600">
+              <div class="flex items-center gap-2">
+                <iconify-icon
+                  icon="solar:map-linear"
+                  class="text-slate-500"
+                ></iconify-icon>
+                <span>Quận 1, TP. Hồ Chí Minh</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <iconify-icon
+                  icon="solar:letter-linear"
+                  class="text-slate-500"
+                ></iconify-icon>
+                <span>support@meetingroom.pro</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <iconify-icon
+                  icon="solar:phone-linear"
+                  class="text-slate-500"
+                ></iconify-icon>
+                <span>+84 123 456 789</span>
+              </div>
+            </div>
+          </div>
+
+          <form
+            id="contactForm"
+            class="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 text-sm"
+          >
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1" for="contactName"
+                >Họ tên</label
+              >
+              <input
+                id="contactName"
+                name="full_name"
+                type="text"
+                required
+                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="Nhập họ tên"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1" for="contactEmail"
+                >Email</label
+              >
+              <input
+                id="contactEmail"
+                name="email"
+                type="email"
+                required
+                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="you@company.com"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1" for="contactMessage"
+                >Nội dung</label
+              >
+              <textarea
+                id="contactMessage"
+                name="message"
+                rows="4"
+                required
+                class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="Mô tả ngắn về nhu cầu triển khai..."
+              ></textarea>
+            </div>
+            <p id="contactFormMsg" class="hidden text-xs rounded-lg px-3 py-2" role="status"></p>
+            <button
+              id="btnContactSubmit"
+              type="submit"
+              class="inline-flex items-center justify-center px-4 py-2 rounded-full bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition-colors disabled:opacity-60"
+            >
+              Gửi yêu cầu
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+      class="bg-white border-t border-slate-200/60 mt-auto"
+    >
+      <div class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-12">
+        <div
+          class="grid grid-cols-1 md:grid-cols-4 gap-8"
+        >
+          <div class="col-span-1 md:col-span-1">
+            <div class="flex items-center gap-2 mb-4">
+              <div
+                class="w-6 h-6 rounded bg-slate-900 flex items-center justify-center text-white"
+              >
+                <iconify-icon
+                  icon="solar:buildings-linear"
+                  style="stroke-width: 1.5"
+                  class="text-sm"
+                ></iconify-icon>
+              </div>
+              <span
+                class="font-medium text-base tracking-tighter text-slate-900"
+                >MRP</span
+              >
+            </div>
+            <p
+              class="text-xs text-slate-500 font-light leading-relaxed"
+            >
+              Giải pháp tối ưu hóa không gian làm việc và quản lý tài
+              nguyên doanh nghiệp hiệu quả.
+            </p>
+          </div>
+          <div>
+            <h4
+              class="text-sm font-medium text-slate-900 mb-4 tracking-tight"
+            >
+              Sản phẩm
+            </h4>
+            <ul
+              class="space-y-2 text-sm text-slate-500 font-light"
+            >
+              <li>
+                <a
+                  href="./devices.html"
+                  class="hover:text-emerald-600 transition-colors"
+                  >Tính năng</a
+                >
+              </li>
+              <li>
+                <a
+                  href="./pricing.html"
+                  class="hover:text-emerald-600 transition-colors"
+                  >Bảng giá</a
+                >
+              </li>
+              <li>
+                <a
+                  href="./customers.html"
+                  class="hover:text-emerald-600 transition-colors"
+                  >Tích hợp</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4
+              class="text-sm font-medium text-slate-900 mb-4 tracking-tight"
+            >
+              Công ty
+            </h4>
+            <ul
+              class="space-y-2 text-sm text-slate-500 font-light"
+            >
+              <li>
+                <a
+                  href="./customers.html"
+                  class="hover:text-emerald-600 transition-colors"
+                  >Về chúng tôi</a
+                >
+              </li>
+              <li>
+                <a
+                  href="./news.html"
+                  class="hover:text-emerald-600 transition-colors"
+                  >Bảo mật</a
+                >
+              </li>
+              <li>
+                <a
+                  href="./news.html"
+                  class="hover:text-emerald-600 transition-colors"
+                  >Điều khoản</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4
+              class="text-sm font-medium text-slate-900 mb-4 tracking-tight"
+            >
+              Kết nối
+            </h4>
+            <div
+              class="flex items-center gap-3 text-slate-400"
+            >
+              <a
+                href="#"
+                class="hover:text-slate-900 transition-colors"
+                ><iconify-icon
+                  icon="solar:map-linear"
+                  class="text-xl"
+                ></iconify-icon
+              ></a>
+              <a
+                href="#"
+                class="hover:text-slate-900 transition-colors"
+                ><iconify-icon
+                  icon="solar:letter-linear"
+                  class="text-xl"
+                ></iconify-icon
+              ></a>
+              <a
+                href="#"
+                class="hover:text-slate-900 transition-colors"
+                ><iconify-icon
+                  icon="solar:phone-linear"
+                  class="text-xl"
+                ></iconify-icon
+              ></a>
+            </div>
+          </div>
+        </div>
+        <div
+          class="border-t border-slate-100 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4"
+        >
+          <p
+            class="text-xs text-slate-400 font-light"
+          >
+            © 2024 Meeting Room Pro. All rights reserved.
+          </p>
+          <div
+            class="flex items-center gap-4 text-xs text-slate-400 font-light"
+          >
+            <span
+              class="flex items-center gap-1"
+              ><span
+                class="w-1.5 h-1.5 rounded-full bg-emerald-500"
+              ></span>
+              Hệ thống hoạt động bình thường</span
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="./shared.js?v=11"></script>
+    <script>
+      function initContactForm() {
+        var form = document.getElementById("contactForm");
+        if (!form || form.dataset.bound === "1") return;
+        form.dataset.bound = "1";
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+          var name = (document.getElementById("contactName").value || "").trim();
+          var email = (document.getElementById("contactEmail").value || "").trim().toLowerCase();
+          var message = (document.getElementById("contactMessage").value || "").trim();
+          var msgEl = document.getElementById("contactFormMsg");
+          var btn = document.getElementById("btnContactSubmit");
+          if (!name || !email || !message) {
+            if (msgEl) {
+              msgEl.classList.remove("hidden", "bg-emerald-50", "text-emerald-800");
+              msgEl.classList.add("bg-amber-50", "text-amber-900");
+              msgEl.textContent = "Vui lòng nhập đủ họ tên, email và nội dung.";
+            }
+            return;
+          }
+          var base = typeof getApiBase === "function" ? getApiBase() : "";
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Đang gửi...";
+          }
+          try {
+            var res = await fetch(base + "/public/contact", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                full_name: name,
+                email: email,
+                message: message,
+              }),
+            });
+            var data = null;
+            try {
+              data = await res.json();
+            } catch (_) {}
+            if (!res.ok) {
+              var err =
+                (data && data.detail) ||
+                "Không gửi được yêu cầu. Hãy chạy backend trên port 8000.";
+              throw new Error(typeof err === "string" ? err : JSON.stringify(err));
+            }
+            form.reset();
+            if (msgEl) {
+              msgEl.classList.remove("hidden", "bg-amber-50", "text-amber-900");
+              msgEl.classList.add("bg-emerald-50", "text-emerald-800");
+              msgEl.textContent =
+                "Đã gửi thành công! Đội ngũ quản trị sẽ xem và liên hệ lại với bạn sớm.";
+            }
+          } catch (err) {
+            if (msgEl) {
+              msgEl.classList.remove("hidden", "bg-emerald-50", "text-emerald-800");
+              msgEl.classList.add("bg-amber-50", "text-amber-900");
+              msgEl.textContent = err && err.message ? err.message : "Gửi thất bại.";
+            }
+          } finally {
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = "Gửi yêu cầu";
+            }
+          }
+        });
+      }
+      initContactForm();
+
+      function goLogin(tab) {
+        var suffix = tab ? "?tab=" + tab : "";
+        window.location.href = "./login.html" + suffix;
+      }
+
+      var btnLogin = document.getElementById("btnNavLogin");
+      if (btnLogin) {
+        btnLogin.addEventListener("click", function () {
+          goLogin("login");
+        });
+      }
+
+      var btnRegister = document.getElementById("btnNavRegister");
+      if (btnRegister) {
+        btnRegister.addEventListener("click", function () {
+          goLogin("register");
+        });
+      }
+
+      var btnExplore = document.getElementById("btnExplore");
+      if (btnExplore) {
+        btnExplore.addEventListener("click", function () {
+          var target = document.getElementById("roomTypesSection");
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth" });
+          } else {
+            window.location.hash = "#roomTypesSection";
+          }
+        });
+      }
+
+      var btnBookNow = document.getElementById("btnBookNow");
+      if (btnBookNow) {
+        btnBookNow.addEventListener("click", function () {
+          if (typeof isUserSessionValid === "function" && isUserSessionValid()) {
+            window.location.href = "./dashboard.html";
+          } else {
+            window.location.href = "./login.html?redirect=dashboard.html";
+          }
+        });
+      }
+
+      // ----- Phòng trên landing (theo API) -----
+      var HOME_ROOM_FALLBACK_IMGS = [
+        "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1505409859467-3a796fd5798e?auto=format&fit=crop&q=80&w=800",
+      ];
+      var BOOKING_AVATAR_PLACEHOLDER = "./images/booking-organizer-placeholder.png";
+
+      function escHtml(str) {
+        var d = document.createElement("div");
+        d.textContent = str == null ? "" : String(str);
+        return d.innerHTML;
+      }
+
+      function parseIsoDate(s) {
+        try {
+          var d = new Date(s);
+          return isNaN(d.getTime()) ? null : d;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function formatHm(dt) {
+        if (!dt) return "";
+        try {
+          return new Date(dt).toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (_) {
+          return "";
+        }
+      }
+
+      function isBookingActiveNow(b, now) {
+        if (!b || b.status !== "active") return false;
+        var s = parseIsoDate(b.start_at);
+        var e = parseIsoDate(b.end_at);
+        if (!s || !e) return false;
+        return s <= now && now <= e;
+      }
+
+      function activeBookingForRoom(roomId, bookings, now) {
+        var list = Array.isArray(bookings) ? bookings : [];
+        for (var i = 0; i < list.length; i++) {
+          var b = list[i];
+          if (!b || b.room_id !== roomId) continue;
+          if (isBookingActiveNow(b, now)) return b;
+        }
+        return null;
+      }
+
+      function nextBookingForRoom(roomId, bookings, now) {
+        var list = Array.isArray(bookings) ? bookings : [];
+        var next = null;
+        var nextStart = null;
+        for (var i = 0; i < list.length; i++) {
+          var b = list[i];
+          if (!b || b.status !== "active" || b.room_id !== roomId) continue;
+          var s = parseIsoDate(b.start_at);
+          if (!s || s <= now) continue;
+          if (!nextStart || s < nextStart) {
+            nextStart = s;
+            next = b;
+          }
+        }
+        return next;
+      }
+
+      function amenityIconName(label) {
+        var t = String(label || "").toLowerCase();
+        if (/tv|màn hình|smart/i.test(t)) return "solar:tv-linear";
+        if (/camera|video|poly|mic|loa/i.test(t)) return "solar:videocamera-linear";
+        if (/monitor|màn/i.test(t)) return "solar:monitor-linear";
+        if (/board|bảng|white/i.test(t)) return "solar:pen-new-round-linear";
+        if (/wifi|mạng/i.test(t)) return "solar:wi-fi-router-linear";
+        return "solar:tag-linear";
+      }
+
+      function renderHomeRoomCards(rooms, bookings) {
+        var grid = document.getElementById("homeRoomsGrid");
+        var emptyEl = document.getElementById("homeRoomsEmpty");
+        if (!grid) return;
+
+        grid.innerHTML = "";
+        var list = Array.isArray(rooms) ? rooms : [];
+        // Trang chủ chỉ hiển thị một vài phòng tượng trưng cho gọn.
+        var HOME_PREVIEW_LIMIT = 4;
+        list = list.slice(0, HOME_PREVIEW_LIMIT);
+
+        if (!list.length) {
+          if (emptyEl) emptyEl.classList.remove("hidden");
+          return;
+        }
+        if (emptyEl) emptyEl.classList.add("hidden");
+
+        var now = new Date();
+
+        list.forEach(function (room) {
+          var rid = room.id;
+          var activeB = activeBookingForRoom(rid, bookings, now);
+          var busy = !!activeB;
+          var imgUrl =
+            (room.image_url && String(room.image_url).trim()) ||
+            HOME_ROOM_FALLBACK_IMGS[rid % HOME_ROOM_FALLBACK_IMGS.length];
+          var cap = Number(room.capacity) || 0;
+          var capLabel = cap > 0 ? cap + " pax" : "—";
+          var amenities = Array.isArray(room.amenities) ? room.amenities : [];
+          var tags = amenities.slice(0, 4);
+
+          var card = document.createElement("div");
+          card.className =
+            "group bg-white rounded-[1.5rem] border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col";
+
+          var media = document.createElement("div");
+          media.className = "relative h-48 overflow-hidden";
+          var img = document.createElement("img");
+          img.src = imgUrl;
+          img.alt = room.name || "Phòng họp";
+          img.className =
+            "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" +
+            (busy ? " opacity-90" : "");
+          media.appendChild(img);
+          if (busy) {
+            var dim = document.createElement("div");
+            dim.className = "absolute inset-0 bg-slate-900/10 mix-blend-multiply";
+            media.appendChild(dim);
+          }
+          var badge = document.createElement("div");
+          badge.className =
+            "absolute top-4 left-4 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-full text-xs font-medium text-slate-900 flex items-center gap-1.5 shadow-sm";
+          var dot = document.createElement("span");
+          dot.className =
+            "w-1.5 h-1.5 rounded-full " +
+            (busy ? "bg-rose-500" : "bg-emerald-500");
+          badge.appendChild(dot);
+          badge.appendChild(
+            document.createTextNode(busy ? "Đang họp" : "Trống")
+          );
+          media.appendChild(badge);
+          card.appendChild(media);
+
+          var body = document.createElement("div");
+          body.className =
+            "p-5 flex-grow flex flex-col justify-between";
+
+          var top = document.createElement("div");
+          var rowTitle = document.createElement("div");
+          rowTitle.className = "flex justify-between items-start mb-2";
+          var h3 = document.createElement("h3");
+          h3.className = "text-lg font-medium tracking-tight text-slate-900";
+          h3.textContent = room.name || "Phòng " + rid;
+          var capSpan = document.createElement("span");
+          capSpan.className =
+            "text-xs text-slate-500 flex items-center gap-1";
+          var capIc = document.createElement("iconify-icon");
+          capIc.setAttribute("icon", "solar:users-group-rounded-linear");
+          capSpan.appendChild(capIc);
+          capSpan.appendChild(document.createTextNode(" " + capLabel));
+          rowTitle.appendChild(h3);
+          rowTitle.appendChild(capSpan);
+          top.appendChild(rowTitle);
+
+          var tagRow = document.createElement("div");
+          tagRow.className = "flex flex-wrap gap-2 mt-3";
+          if (tags.length) {
+            tags.forEach(function (tag) {
+              var sp = document.createElement("span");
+              sp.className =
+                "inline-flex items-center gap-1 px-2 py-1 bg-slate-50 text-slate-500 text-[10px] rounded-md border border-slate-100";
+              var ic = document.createElement("iconify-icon");
+              ic.setAttribute("icon", amenityIconName(tag));
+              sp.appendChild(ic);
+              sp.appendChild(document.createTextNode(" " + tag));
+              tagRow.appendChild(sp);
+            });
+          } else {
+            var sp0 = document.createElement("span");
+            sp0.className =
+              "text-[10px] text-slate-400 italic";
+            sp0.textContent = "Chưa ghi thiết bị";
+            tagRow.appendChild(sp0);
+          }
+          top.appendChild(tagRow);
+          body.appendChild(top);
+
+          var foot = document.createElement("div");
+          foot.className =
+            "mt-6 pt-4 border-t border-slate-50 flex items-center justify-between gap-2";
+
+          if (!busy) {
+            var nextB = nextBookingForRoom(rid, bookings, now);
+            var leftP = document.createElement("p");
+            leftP.className = "text-xs text-slate-400";
+            leftP.textContent = nextB
+              ? "Trống đến " + formatHm(nextB.start_at)
+              : "Không có lịch sắp tới";
+            var btnWrap = document.createElement("a");
+            btnWrap.href =
+              typeof isUserSessionValid === "function" && isUserSessionValid()
+                ? "./dashboard.html"
+                : "./login.html?redirect=dashboard.html";
+            btnWrap.className =
+              "text-xs font-medium bg-slate-900 text-white px-4 py-2 rounded-full hover:bg-slate-800 transition-colors shrink-0";
+            btnWrap.textContent = "Đặt phòng";
+            foot.appendChild(leftP);
+            foot.appendChild(btnWrap);
+          } else {
+            var who = document.createElement("div");
+            who.className = "flex items-center gap-2 min-w-0";
+            var av = document.createElement("img");
+            av.src = BOOKING_AVATAR_PLACEHOLDER;
+            av.alt = "";
+            av.className = "w-6 h-6 rounded-full object-cover shrink-0";
+            var pWho = document.createElement("p");
+            pWho.className = "text-[10px] text-slate-500 truncate";
+            var org =
+              (activeB.organizer_name && String(activeB.organizer_name).trim()) ||
+              (activeB.title && String(activeB.title).trim()) ||
+              "Cuộc họp";
+            pWho.innerHTML =
+              "Bởi <span class=\"font-medium text-slate-700\">" +
+              escHtml(org) +
+              "</span>";
+            who.appendChild(av);
+            who.appendChild(pWho);
+            var pill = document.createElement("button");
+            pill.type = "button";
+            pill.disabled = true;
+            pill.className =
+              "text-xs font-medium bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-full shrink-0";
+            pill.textContent =
+              "Trống lúc " + formatHm(activeB.end_at);
+            foot.appendChild(who);
+            foot.appendChild(pill);
+          }
+          body.appendChild(foot);
+          card.appendChild(body);
+          grid.appendChild(card);
+        });
+      }
+
+      function countFreeRoomsNow(rooms, bookings) {
+        var now = new Date();
+        var list = Array.isArray(rooms) ? rooms : [];
+        var books = Array.isArray(bookings) ? bookings : [];
+        var busyIds = {};
+        books.forEach(function (b) {
+          if (isBookingActiveNow(b, now) && b.room_id != null)
+            busyIds[b.room_id] = true;
+        });
+        var n = 0;
+        list.forEach(function (r) {
+          if (r && !busyIds[r.id]) n++;
+        });
+        return n;
+      }
+
+      // ----- Dashboard stats from backend -----
+      async function loadDashboardStats() {
+        var section = document.getElementById("statsSection");
+        if (!section || typeof api !== "function") return;
+
+        try {
+          // Trang chủ là public: lấy dữ liệu public để vẫn chạy khi chưa đăng nhập.
+          var payload = await api("/public/dashboard-stats");
+          var rooms = Array.isArray(payload && payload.rooms) ? payload.rooms : [];
+          var bookings = Array.isArray(payload && payload.bookings) ? payload.bookings : [];
+
+          var totalRooms = Number(payload && payload.total_rooms) || rooms.length || 0;
+          var roomsInUse = Number(payload && payload.rooms_in_use) || 0;
+          var todaysMeetings = Number(payload && payload.today_meetings) || 0;
+          var utilization = Number(payload && payload.utilization_percent);
+          if (!Number.isFinite(utilization)) {
+            utilization = totalRooms > 0 ? Math.round((roomsInUse / totalRooms) * 100) : 0;
+          }
+
+          // Gán số liệu vào UI
+          var elTotalRooms = document.getElementById("statTotalRooms");
+          var elInUse = document.getElementById("statInUse");
+          var elRoomsForUsage = document.getElementById("statRoomsForUsage");
+          var elUsageBar = document.getElementById("statUsageBar");
+          var elToday = document.getElementById("statTodayMeetings");
+          var elUtil = document.getElementById("statUtilization");
+          var elFreeNow = document.getElementById("statFreeNowText");
+
+          if (elTotalRooms) elTotalRooms.textContent = totalRooms;
+          if (elInUse) elInUse.textContent = roomsInUse;
+          if (elRoomsForUsage) elRoomsForUsage.textContent = totalRooms;
+          if (elUsageBar)
+            elUsageBar.style.width =
+              Math.max(0, Math.min(utilization, 100)) + "%";
+          if (elToday) elToday.textContent = todaysMeetings;
+          if (elUtil) elUtil.textContent = utilization + "%";
+          if (elFreeNow) {
+            var freeN = countFreeRoomsNow(rooms, bookings);
+            elFreeNow.textContent =
+              totalRooms > 0
+                ? freeN + " phòng trống lúc này"
+                : "Chưa có phòng";
+          }
+
+          // Lưu dữ liệu toàn cục để lọc theo thời gian thực
+          window.__MRP_ROOMS = rooms;
+          window.__MRP_BOOKINGS = bookings;
+
+          try {
+            renderHomeRoomCards(rooms, bookings);
+          } catch (e) {
+            console.warn("home rooms:", e);
+          }
+
+          // Cập nhật lịch chi tiết bên phải
+          try {
+            renderScheduleTimeline(rooms, bookings);
+          } catch (_) {}
+        } catch (e) {
+          try {
+            console.warn("Không tải được thống kê dashboard:", e);
+          } catch (_) {}
+          var emptyErr = document.getElementById("homeRoomsEmpty");
+          var gridErr = document.getElementById("homeRoomsGrid");
+          if (gridErr) gridErr.innerHTML = "";
+          if (emptyErr) emptyErr.classList.remove("hidden");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadDashboardStats();
+      });
+
+      // Lọc phòng trống theo thời gian thực (dựa trên bookings thực tế)
+      (function () {
+        var btn = document.getElementById("btnRoomFilter");
+        if (!btn) return;
+
+        btn.addEventListener("click", function () {
+          var rooms = window.__MRP_ROOMS || [];
+          var bookings = window.__MRP_BOOKINGS || [];
+
+          if (!rooms.length) {
+            alert(
+              "Chưa tải được danh sách phòng.\nHãy đảm bảo backend đang chạy."
+            );
+            return;
+          }
+
+          var now = new Date();
+
+          function isActiveNow(b) {
+            if (!b || b.status !== "active") return false;
+            try {
+              var s = new Date(b.start_at);
+              var e = new Date(b.end_at);
+              return s <= now && now <= e;
+            } catch {
+              return false;
+            }
+          }
+
+          var activeNow = bookings.filter(isActiveNow);
+          var busyIds = new Set(
+            activeNow
+              .map(function (b) {
+                return b.room_id;
+              })
+              .filter(function (x) {
+                return x != null;
+              })
+          );
+
+          var freeRooms = rooms.filter(function (r) {
+            return r && !busyIds.has(r.id);
+          });
+          var busyRooms = rooms.filter(function (r) {
+            return r && busyIds.has(r.id);
+          });
+
+          var lines = [];
+          lines.push(
+            "Thời điểm: " + now.toLocaleString(undefined, { hour12: false })
+          );
+
+          if (freeRooms.length) {
+            lines.push("");
+            lines.push("Phòng TRỐNG bây giờ:");
+            freeRooms.forEach(function (r) {
+              lines.push("• " + (r.name || "Phòng " + r.id));
+            });
+          } else {
+            lines.push("");
+            lines.push("Hiện không còn phòng trống nào.");
+          }
+
+          if (busyRooms.length) {
+            lines.push("");
+            lines.push("Phòng đang được sử dụng:");
+            busyRooms.forEach(function (r) {
+              lines.push("• " + (r.name || "Phòng " + r.id));
+            });
+          }
+
+          alert(lines.join("\n"));
+        });
+      })();
+
+      // Lịch hôm nay / tuần dựa trên bookings thực tế
+      function renderScheduleTimeline(rooms, bookings) {
+        var container = document.getElementById("scheduleTimeline");
+        var title = document.getElementById("scheduleCurrentRange");
+        if (!container) return;
+
+        var roomNames = {};
+        if (Array.isArray(rooms)) {
+          rooms.forEach(function (r) {
+            if (r && r.id != null) roomNames[r.id] = r.name || "Phòng " + r.id;
+          });
+        }
+
+        var mode = "day";
+        var btnDay = null;
+        var btnWeek = null;
+        try {
+          var buttons = container
+            .closest(".bg-slate-900")
+            .querySelectorAll("button");
+          buttons.forEach(function (b) {
+            if (b.textContent.trim() === "Ngày") btnDay = b;
+            if (b.textContent.trim() === "Tuần") btnWeek = b;
+          });
+        } catch (_) {}
+
+        function withinDay(b, day) {
+          try {
+            var s = new Date(b.start_at);
+            var e = new Date(b.end_at);
+            return s < endOfDay(day) && e > startOfDay(day);
+          } catch {
+            return false;
+          }
+        }
+
+        function startOfDay(d) {
+          var x = new Date(d);
+          x.setHours(0, 0, 0, 0);
+          return x;
+        }
+        function endOfDay(d) {
+          var x = new Date(d);
+          x.setHours(23, 59, 59, 999);
+          return x;
+        }
+
+        function formatTime(dt) {
+          try {
+            return new Date(dt).toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          } catch {
+            return "";
+          }
+        }
+
+        function formatDateRangeForWeek(base) {
+          var day = base.getDay(); // 0 Sun .. 6 Sat
+          var diffToMon = (day + 6) % 7;
+          var monday = new Date(base);
+          monday.setDate(base.getDate() - diffToMon);
+          var sunday = new Date(monday);
+          sunday.setDate(monday.getDate() + 6);
+          return (
+            monday.toLocaleDateString() +
+            " - " +
+            sunday.toLocaleDateString()
+          );
+        }
+
+        function render() {
+          var now = new Date();
+          container.innerHTML = "";
+
+          var list = [];
+          if (mode === "day") {
+            list = bookings.filter(function (b) {
+              return b && b.status === "active" && withinDay(b, now);
+            });
+            if (title) {
+              title.textContent =
+                "Lịch hôm nay - " + now.toLocaleDateString();
+            }
+          } else {
+            var day = now.getDay();
+            var diffToMon = (day + 6) % 7;
+            var monday = new Date(now);
+            monday.setDate(now.getDate() - diffToMon);
+            var sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+
+            list = bookings.filter(function (b) {
+              try {
+                var s = new Date(b.start_at);
+                return s >= startOfDay(monday) && s <= endOfDay(sunday);
+              } catch {
+                return false;
+              }
+            });
+            if (title) {
+              title.textContent =
+                "Lịch tuần này - " + formatDateRangeForWeek(now);
+            }
+          }
+
+          list.sort(function (a, b) {
+            return new Date(a.start_at) - new Date(b.start_at);
+          });
+
+          if (!list.length) {
+            var empty = document.createElement("div");
+            empty.className =
+              "relative pl-6 py-3 rounded-xl border border-dashed border-slate-700/80 bg-slate-800/60 text-slate-300";
+            empty.innerHTML =
+              '<div class="absolute -left-6 top-2 text-xs font-medium text-slate-400">—</div>' +
+              '<div class="text-xs font-medium mb-1">Không có plan</div>' +
+              '<div class="text-[11px] text-slate-400">Chưa có cuộc họp nào được đặt trong ' +
+              (mode === "day" ? "hôm nay" : "tuần này") +
+              ".</div>";
+            container.appendChild(empty);
+            return;
+          }
+
+          list.forEach(function (b) {
+            var timeLabel = formatTime(b.start_at);
+            var room =
+              roomNames[b.room_id] || (b.room_id != null
+                ? "Phòng " + b.room_id
+                : "Phòng họp");
+
+            var wrap = document.createElement("div");
+            wrap.className = "relative";
+
+            var label = document.createElement("div");
+            label.className =
+              "absolute -left-[45px] top-1 text-xs font-medium text-emerald-400";
+            label.textContent = timeLabel || "";
+            wrap.appendChild(label);
+
+            var dot = document.createElement("div");
+            dot.className =
+              "absolute -left-[14px] top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-900 shadow-sm";
+            wrap.appendChild(dot);
+
+            var card = document.createElement("div");
+            card.className =
+              "bg-slate-800/80 p-3 rounded-xl border border-slate-700/80";
+
+            var titleEl = document.createElement("h4");
+            titleEl.className = "text-xs font-medium text-slate-50";
+            titleEl.textContent = b.title || "Cuộc họp";
+            card.appendChild(titleEl);
+
+            var info = document.createElement("p");
+            info.className = "text-[11px] text-slate-300 mt-1";
+            var endTime = formatTime(b.end_at);
+            info.textContent =
+              room +
+              (timeLabel && endTime ? " • " + timeLabel + " - " + endTime : "");
+            card.appendChild(info);
+
+            wrap.appendChild(card);
+            container.appendChild(wrap);
+          });
+        }
+
+        if (btnDay) {
+          btnDay.addEventListener("click", function () {
+            mode = "day";
+            btnDay.classList.add("bg-white", "text-slate-900", "shadow-sm");
+            btnWeek.classList.remove("bg-white", "text-slate-900", "shadow-sm");
+            render();
+          });
+        }
+        if (btnWeek) {
+          btnWeek.addEventListener("click", function () {
+            mode = "week";
+            btnWeek.classList.add("bg-white", "text-slate-900", "shadow-sm");
+            btnDay.classList.remove("bg-white", "text-slate-900", "shadow-sm");
+            render();
+          });
+        }
+
+        render();
+      }
+    </script>
+  </body>
+</html>
+

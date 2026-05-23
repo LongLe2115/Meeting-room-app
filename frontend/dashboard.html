@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Meeting Room Pro</title>
+    <script src="./shared.js?v=11"></script>
+    <script>
+      (function () {
+        if (typeof isUserSessionValid !== "function" || !isUserSessionValid()) {
+          window.location.replace("./login.html");
+        }
+      })();
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 5.5rem;
+        /* Tự scale theo màn hình để giao diện cân đối hơn */
+        font-size: clamp(16px, 1.1vw + 10px, 22px);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .user-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      }
+      .scrollbar-thin::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+      .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      @keyframes viewSlideIn {
+        from {
+          opacity: 0;
+          transform: translateX(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      main > section.view-enter {
+        animation: viewSlideIn 0.32s ease-out;
+      }
+      .vn-time-picker {
+        position: relative;
+        width: 100%;
+      }
+      .vn-time-picker-control {
+        display: flex;
+        align-items: stretch;
+        gap: 4px;
+        width: 100%;
+      }
+      .vn-time-picker-input {
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+      }
+      .vn-time-step,
+      .vn-time-picker-toggle {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        color: #334155;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .vn-time-step {
+        width: 2.25rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .vn-time-picker-toggle {
+        width: 2.5rem;
+        font-size: 1.15rem;
+      }
+      .vn-time-step:hover,
+      .vn-time-picker-toggle:hover {
+        background: #ecfdf5;
+        border-color: #6ee7b7;
+        color: #047857;
+      }
+      .vn-time-step:active,
+      .vn-time-picker-toggle:active {
+        background: #d1fae5;
+      }
+      .vn-time-slot-panel {
+        position: absolute;
+        z-index: 40;
+        left: 0;
+        right: 0;
+        top: calc(100% + 6px);
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 8px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      }
+      .vn-time-slot-panel.hidden {
+        display: none;
+      }
+      .vn-time-slot-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .vn-time-slot-btn {
+        padding: 6px 4px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        color: #334155;
+        cursor: pointer;
+      }
+      .vn-time-slot-btn:hover {
+        background: #ecfdf5;
+        border-color: #34d399;
+        color: #047857;
+      }
+      .vn-time-slot-btn.is-active {
+        background: #059669;
+        border-color: #059669;
+        color: #fff;
+        font-weight: 600;
+      }
+      #vnRefTime.vn-time-picker-input {
+        max-width: 5rem;
+      }
+      .support-chat {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 360px;
+        overflow-y: auto;
+        padding: 4px 2px;
+      }
+      .support-bubble {
+        max-width: 88%;
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .support-bubble--me {
+        align-self: flex-end;
+        background: #059669;
+        color: #fff;
+        border-bottom-right-radius: 4px;
+      }
+      .support-bubble--admin {
+        align-self: flex-start;
+        background: #f1f5f9;
+        color: #0f172a;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 4px;
+      }
+      .support-bubble-meta {
+        font-size: 10px;
+        opacity: 0.85;
+        margin-bottom: 4px;
+      }
+      .support-bubble-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      .support-bubble-del {
+        flex-shrink: 0;
+        font-size: 10px;
+        color: #94a3b8;
+        padding: 2px 6px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+      }
+      .support-bubble-del:hover {
+        color: #dc2626;
+        background: rgba(220, 38, 38, 0.08);
+      }
+      .support-bubble--admin .support-bubble-del:hover {
+        color: #fca5a5;
+        background: rgba(255, 255, 255, 0.12);
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 min-h-screen w-full flex">
+    <!-- Sidebar -->
+    <aside
+      class="hidden md:flex w-72 shrink-0 bg-slate-950 border-r border-slate-800 flex-col px-5 py-8"
+    >
+      <div class="flex items-center gap-2 px-2 mb-8">
+        <div
+          class="w-11 h-11 rounded-xl bg-emerald-500 flex items-center justify-center text-slate-950"
+        >
+          <iconify-icon
+            icon="solar:buildings-linear"
+            class="text-xl"
+          ></iconify-icon>
+        </div>
+        <div class="flex flex-col leading-tight">
+          <span class="text-base font-semibold tracking-tight"
+            >Meeting Room Pro</span
+          >
+          <span class="text-[11px] text-slate-400">Trang chủ người dùng</span>
+        </div>
+      </div>
+
+      <nav class="space-y-1.5 text-base flex-1">
+        <button
+          type="button"
+          data-nav="dashboard"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-emerald-400 font-medium"
+        >
+          <iconify-icon icon="solar:home-2-linear" class="text-lg"></iconify-icon>
+          <span>Trang chủ</span>
+        </button>
+        <button
+          type="button"
+          data-nav="my-meetings"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-900/70 text-slate-300"
+        >
+          <iconify-icon icon="solar:clock-circle-linear" class="text-lg"></iconify-icon>
+          <span>Cuộc họp của tôi</span>
+        </button>
+        <button
+          type="button"
+          data-nav="available-rooms"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-900/70 text-slate-300"
+        >
+          <iconify-icon icon="solar:buildings-2-linear" class="text-lg"></iconify-icon>
+          <span>Phòng khả dụng</span>
+        </button>
+        <button
+          type="button"
+          data-nav="support"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-900/70 text-slate-300"
+        >
+          <iconify-icon icon="solar:headphones-round-sound-linear" class="text-lg"></iconify-icon>
+          <span>Hỗ trợ thiết bị</span>
+          <span id="navSupportBadge" class="hidden ml-auto min-w-[1.1rem] h-5 px-1 rounded-full bg-amber-400 text-slate-900 text-[10px] font-bold flex items-center justify-center">0</span>
+        </button>
+        <button
+          type="button"
+          data-nav="profile"
+          class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-900/70 text-slate-300"
+        >
+          <iconify-icon icon="solar:user-circle-linear" class="text-lg"></iconify-icon>
+          <span>Hồ sơ cá nhân</span>
+        </button>
+      </nav>
+
+      <button
+        id="btnSidebarLogout"
+        class="mt-8 w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-base text-rose-400 hover:bg-rose-950/40 hover:text-rose-300"
+      >
+        <iconify-icon icon="solar:logout-2-linear" class="text-lg"></iconify-icon>
+        <span>Đăng xuất</span>
+      </button>
+    </aside>
+
+    <!-- Main area -->
+    <div class="flex-1 flex flex-col min-w-0 w-full">
+      <!-- Header -->
+      <header
+        class="h-20 border-b border-slate-200 bg-white flex items-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 justify-between gap-4"
+      >
+        <div class="flex items-center gap-3 md:hidden">
+          <span class="text-base font-semibold">Meeting Room Pro</span>
+        </div>
+
+        <div class="flex-1 flex items-center gap-3 min-w-0 max-w-none">
+          <div
+            class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex-1"
+          >
+            <iconify-icon
+              icon="solar:magnifier-linear"
+              class="text-slate-500 text-lg"
+            ></iconify-icon>
+            <input
+              id="quickSearch"
+              type="text"
+              placeholder="Tìm nhanh phòng họp..."
+              class="bg-transparent outline-none border-none text-base flex-1 placeholder:text-slate-500"
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button
+            id="btnHeaderLogout"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg border border-slate-200 text-xs sm:text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <iconify-icon icon="solar:logout-2-linear" class="text-lg"></iconify-icon>
+            Đăng xuất
+          </button>
+          <button
+            id="btnHeaderBell"
+            class="relative w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+          >
+            <iconify-icon icon="solar:bell-linear" class="text-lg"></iconify-icon>
+            <span
+              id="headerBellDot"
+              class="absolute top-1 right-1 w-1.5 h-1.5 bg-emerald-400 rounded-full"
+            ></span>
+          </button>
+          <div
+            id="bellDropdown"
+            class="hidden absolute right-4 sm:right-6 md:right-8 lg:right-12 xl:right-16 2xl:right-24 top-[4.75rem] w-[min(92vw,26rem)] bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-40"
+          >
+            <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <p class="text-sm font-semibold text-slate-900">Thông báo</p>
+                <p class="text-xs text-slate-500">Cập nhật theo thời gian</p>
+              </div>
+              <button
+                id="btnBellMarkRead"
+                type="button"
+                class="text-xs font-medium text-slate-600 hover:text-slate-900"
+              >
+                Đánh dấu đã đọc
+              </button>
+            </div>
+            <div id="bellList" class="max-h-[60vh] overflow-y-auto divide-y divide-slate-100"></div>
+            <div id="bellEmpty" class="hidden px-4 py-6 text-sm text-slate-500">
+              Chưa có thông báo nào.
+            </div>
+          </div>
+          <button
+            id="btnHeaderProfile"
+            class="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-slate-900"
+          >
+            <div
+              class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center text-emerald-700 text-sm font-semibold"
+              id="userAvatarInitial"
+            >
+              U
+            </div>
+            <div class="hidden sm:flex flex-col leading-tight text-left">
+              <span id="userNameLabel" class="text-xs font-medium">User</span>
+              <span id="userEmailLabel" class="text-[11px] text-slate-400"
+                >user@example.com</span
+              >
+            </div>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1 bg-slate-50 overflow-y-auto min-h-0 w-full min-w-0">
+        <!-- Dashboard section -->
+        <section id="view-dashboard" class="w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-6 lg:py-8 space-y-6 lg:space-y-8">
+          <!-- Stats cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
+            <div
+              class="user-card rounded-2xl p-4 lg:p-5 flex flex-col gap-2"
+            >
+              <p class="text-xs text-slate-400 font-medium uppercase">
+                Cuộc họp hôm nay
+              </p>
+              <div class="flex items-baseline gap-2">
+                <span
+                  id="statTodayMyMeetings"
+                  class="text-2xl lg:text-3xl font-semibold text-slate-900"
+                  >0</span
+                >
+                <span class="text-xs text-slate-500">cuộc họp</span>
+              </div>
+            </div>
+            <div
+              class="user-card rounded-2xl p-4 lg:p-5 flex flex-col gap-2"
+            >
+              <p class="text-xs text-slate-400 font-medium uppercase">
+                Cuộc họp sắp tới
+              </p>
+              <div class="flex items-baseline gap-2">
+                <span
+                  id="statUpcomingMyMeetings"
+                  class="text-2xl lg:text-3xl font-semibold text-slate-900"
+                  >0</span
+                >
+                <span class="text-xs text-slate-500">trong 7 ngày</span>
+              </div>
+            </div>
+            <div
+              class="user-card rounded-2xl p-4 lg:p-5 flex flex-col gap-2"
+            >
+              <p class="text-xs text-slate-400 font-medium uppercase">
+                Đặt phòng trong tháng
+              </p>
+              <div class="flex items-baseline gap-2">
+                <span
+                  id="statMonthMyBookings"
+                  class="text-2xl lg:text-3xl font-semibold text-slate-900"
+                  >0</span
+                >
+                <span class="text-xs text-slate-500">lần</span>
+              </div>
+            </div>
+            <div
+              class="user-card rounded-2xl p-4 lg:p-5 flex flex-col gap-2"
+            >
+              <p class="text-xs text-slate-400 font-medium uppercase">
+                Phòng họp sử dụng nhiều nhất
+              </p>
+              <p
+                id="statTopRoom"
+                class="text-base lg:text-lg font-medium text-slate-900 truncate"
+              >
+                Chưa có dữ liệu
+              </p>
+            </div>
+          </div>
+
+          <!-- Mốc giờ Việt Nam (GMT+7) — thống kê & trạng thái phòng tính theo mốc này -->
+          <div
+            class="user-card rounded-2xl px-4 py-3 flex flex-col gap-3"
+          >
+            <div class="flex flex-wrap items-end gap-3 sm:gap-4">
+              <div class="flex flex-col gap-1 min-w-0">
+                <span class="text-xs font-medium text-slate-700"
+                  >Mốc thời gian (Việt Nam — GMT+7)</span
+                >
+                <span class="text-[10px] text-slate-400">Giờ nhập 24h (vd. 09:00, 14:30)</span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    id="vnRefDate"
+                    type="date"
+                    class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-900"
+                  />
+                  <input
+                    id="vnRefTime"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="09:00"
+                    title="Giờ 24h (GMT+7)"
+                    class="vn-time-input px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-900 w-[5.5rem]"
+                  />
+                </div>
+              </div>
+              <button
+                id="btnDashRefresh"
+                type="button"
+                class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-medium hover:bg-slate-800"
+              >
+                Làm mới
+              </button>
+              <span id="dashRoomCount" class="text-xs text-slate-500 pb-1"></span>
+              <span id="dashSyncInfo" class="text-xs text-slate-400 sm:ml-auto pb-1"></span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Thống kê ô trên và cột “Đang sử dụng” dùng <strong class="text-slate-500">mốc giờ VN</strong> đã chọn.
+              Tải danh sách phòng/đặt chỗ: chỉ khi bấm <strong class="text-slate-500">Làm mới</strong>.
+            </p>
+          </div>
+
+          <!-- Calendar area -->
+          <div
+            class="user-card rounded-3xl p-4 md:p-6"
+          >
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+              <div>
+                <h2 class="text-sm md:text-base font-semibold text-slate-900">
+                  Lịch phòng họp
+                </h2>
+                <p class="text-xs text-slate-400">
+                  Xem nhanh trạng thái phòng theo ngày / tuần
+                </p>
+              </div>
+              <div
+                class="flex flex-wrap items-center gap-2 justify-end sm:justify-end"
+              >
+                <button
+                  type="button"
+                  id="btnCalPrev"
+                  class="w-8 h-8 shrink-0 rounded-lg border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-sm"
+                  title="Trước"
+                >
+                  <iconify-icon
+                    icon="solar:alt-arrow-left-linear"
+                  ></iconify-icon>
+                </button>
+                <p
+                  id="calendarRangeLabel"
+                  class="text-slate-700 text-xs font-medium min-w-[100px] text-center px-1"
+                >
+                  Hôm nay
+                </p>
+                <button
+                  type="button"
+                  id="btnCalNext"
+                  class="w-8 h-8 shrink-0 rounded-lg border border-slate-300 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-100 shadow-sm"
+                  title="Sau"
+                >
+                  <iconify-icon
+                    icon="solar:alt-arrow-right-linear"
+                  ></iconify-icon>
+                </button>
+                <button
+                  type="button"
+                  id="btnCalDay"
+                  class="cal-mode-btn px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 shadow-sm hover:bg-slate-50"
+                >
+                  Ngày
+                </button>
+                <button
+                  type="button"
+                  id="btnCalWeek"
+                  class="cal-mode-btn px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50"
+                >
+                  Tuần
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto scrollbar-thin">
+              <div
+                id="calendarGrid"
+                class="min-w-[640px] border-t border-slate-200 mt-2 pt-3 space-y-3 text-xs"
+              >
+                <!-- Filled by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="user-card rounded-3xl p-4 md:p-6">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="text-sm md:text-base font-semibold text-slate-900">
+                  Danh sách phòng hiện có
+                </h3>
+                <p class="text-xs text-slate-500">
+                  Đồng bộ theo dữ liệu tạo từ trang quản trị.
+                </p>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead class="bg-slate-50 border border-slate-200">
+                  <tr>
+                    <th class="px-4 py-2 text-xs font-semibold text-slate-600 w-20">Ảnh</th>
+                    <th class="px-4 py-2 text-xs font-semibold text-slate-600">Tên phòng</th>
+                    <th class="px-4 py-2 text-xs font-semibold text-slate-600">Vị trí</th>
+                    <th class="px-4 py-2 text-xs font-semibold text-slate-600">Sức chứa</th>
+                    <th class="px-4 py-2 text-xs font-semibold text-slate-600">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody id="roomsQuickBody" class="divide-y divide-slate-100 border-x border-b border-slate-200"></tbody>
+              </table>
+            </div>
+            <p id="roomsQuickEmpty" class="text-xs text-slate-500 py-3">
+              Chưa có phòng họp hoạt động nào.
+            </p>
+          </div>
+        </section>
+
+        <!-- Other views (placeholders) -->
+        <section
+          id="view-my-meetings"
+          class="hidden w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-6 lg:py-8 space-y-4 text-sm"
+        >
+          <h2 class="text-base font-semibold text-slate-900">
+            Cuộc họp của tôi
+          </h2>
+          <p class="text-xs text-slate-500">
+            Các cuộc họp bạn đã đặt (có thể hủy nếu còn hiệu lực).
+          </p>
+          <div id="myMeetingsList" class="space-y-3 text-xs">
+            <!-- Filled by JS -->
+          </div>
+        </section>
+
+        <section
+          id="view-available-rooms"
+          class="hidden w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-6 lg:py-8 space-y-4 text-sm"
+        >
+          <h2 class="text-base font-semibold text-slate-900">Phòng khả dụng</h2>
+          <p class="text-xs text-slate-500">
+            Chọn <strong>ngày và khung giờ</strong> cần đặt. Phòng đã có lịch trùng khung đó sẽ hiện
+            <span class="text-rose-600 font-medium">Đã đặt</span> và không cho đặt trùng.
+          </p>
+          <div
+            class="user-card rounded-2xl p-4 flex flex-col sm:flex-row flex-wrap items-end gap-3 sm:gap-4"
+          >
+            <label class="block min-w-[140px] flex-1">
+              <span class="text-xs font-medium text-slate-600">Ngày</span>
+              <input
+                id="availFilterDate"
+                type="date"
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+              />
+            </label>
+            <label class="block min-w-[100px]">
+              <span class="text-xs font-medium text-slate-600">Bắt đầu</span>
+              <span class="block text-[10px] text-slate-400">24h · GMT+7</span>
+              <input
+                id="availFilterStart"
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="09:00"
+                title="Giờ Việt Nam, định dạng 24h (ví dụ 09:00)"
+                class="vn-time-input mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+              />
+            </label>
+            <label class="block min-w-[100px]">
+              <span class="text-xs font-medium text-slate-600">Kết thúc</span>
+              <span class="block text-[10px] text-slate-400">24h · GMT+7</span>
+              <input
+                id="availFilterEnd"
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="10:00"
+                title="Giờ Việt Nam, định dạng 24h (ví dụ 10:00)"
+                class="vn-time-input mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+              />
+            </label>
+            <label class="block min-w-[140px] flex-1">
+              <span class="text-xs font-medium text-slate-600">Tầng</span>
+              <select
+                id="availFilterFloor"
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+              >
+                <option value="">Tất cả tầng</option>
+              </select>
+            </label>
+            <label class="block min-w-[160px] flex-1">
+              <span class="text-xs font-medium text-slate-600">Phòng</span>
+              <select
+                id="availFilterRoom"
+                class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+              >
+                <option value="">Tất cả phòng</option>
+              </select>
+            </label>
+            <p id="availSlotSummary" class="text-xs text-slate-500 sm:ml-auto w-full sm:w-auto pt-1"></p>
+          </div>
+          <div
+            id="availableRoomsGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 lg:gap-6"
+          ></div>
+        </section>
+
+        <section
+          id="view-support"
+          class="hidden w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-6 lg:py-8 space-y-4 text-sm"
+        >
+          <div>
+            <h2 class="text-lg font-semibold text-slate-900">Hỗ trợ thiết bị &amp; phòng họp</h2>
+            <p class="text-xs text-slate-500 mt-1">
+              Báo thiết bị hư, sự cố phòng — quản trị phản hồi trực tiếp trong hội thoại (tự cập nhật mỗi 8 giây).
+            </p>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            <div class="space-y-4">
+              <div class="user-card rounded-2xl p-4 md:p-5 space-y-3">
+                <h3 class="text-sm font-semibold text-slate-900">Gửi yêu cầu mới</h3>
+                <label class="block">
+                  <span class="text-xs font-medium text-slate-600">Loại sự cố</span>
+                  <select id="supportCategory" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+                    <option value="thiet_bi_hong">Thiết bị hư (máy chiếu, WiFi, điều hòa…)</option>
+                    <option value="phong_co_van_de">Phòng có vấn đề</option>
+                    <option value="khac">Khác</option>
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="text-xs font-medium text-slate-600">Phòng (nếu có)</span>
+                  <select id="supportRoomId" class="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm">
+                    <option value="">— Không chọn phòng —</option>
+                  </select>
+                </label>
+                <label class="block">
+                  <span class="text-xs font-medium text-slate-600">Tiêu đề ngắn</span>
+                  <input id="supportSubject" type="text" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="VD: Máy chiếu không lên hình" />
+                </label>
+                <label class="block">
+                  <span class="text-xs font-medium text-slate-600">Mô tả chi tiết</span>
+                  <textarea id="supportDescription" rows="4" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-y" placeholder="Mô tả sự cố, thời gian phát hiện…"></textarea>
+                </label>
+                <button id="btnSupportSubmit" type="button" class="w-full rounded-xl bg-slate-900 text-white text-sm font-semibold py-2.5 hover:bg-slate-800">Gửi yêu cầu hỗ trợ</button>
+              </div>
+              <div class="user-card rounded-2xl p-4">
+                <h3 class="text-sm font-semibold text-slate-900 mb-3">Yêu cầu của bạn</h3>
+                <div id="supportTicketList" class="space-y-2 max-h-[280px] overflow-y-auto"></div>
+                <p id="supportTicketListEmpty" class="hidden text-xs text-slate-500">Chưa có yêu cầu nào.</p>
+              </div>
+            </div>
+            <div class="user-card rounded-2xl p-4 md:p-5 flex flex-col min-h-[420px]">
+              <div id="supportThreadEmpty" class="flex-1 flex items-center justify-center text-xs text-slate-500 text-center px-4">
+                Chọn một yêu cầu bên trái để xem hội thoại với quản trị.
+              </div>
+              <div id="supportThreadPanel" class="hidden flex flex-col flex-1 min-h-0">
+                <div class="border-b border-slate-100 pb-3 mb-3">
+                  <p id="supportThreadTitle" class="text-sm font-semibold text-slate-900"></p>
+                  <p id="supportThreadMeta" class="text-xs text-slate-500 mt-1"></p>
+                  <div id="supportThreadActions" class="hidden flex flex-wrap gap-2 mt-2">
+                    <button id="btnSupportConfirmDone" type="button" class="text-xs font-medium px-3 py-1.5 rounded-lg border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100">Xác nhận đã xử lý xong</button>
+                    <button id="btnSupportDeleteTicket" type="button" class="text-xs font-medium px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100">Xóa yêu cầu</button>
+                  </div>
+                </div>
+                <div id="supportChat" class="support-chat flex-1"></div>
+                <div class="mt-3 pt-3 border-t border-slate-100">
+                  <textarea id="supportReplyInput" rows="2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none" placeholder="Nhập phản hồi thêm cho admin…"></textarea>
+                  <button id="btnSupportReply" type="button" class="mt-2 w-full rounded-xl bg-emerald-600 text-white text-sm font-semibold py-2 hover:bg-emerald-500">Gửi tin nhắn</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="view-profile"
+          class="hidden w-full max-w-none mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-24 py-6 lg:py-8 space-y-4 text-sm"
+        >
+          <h2 class="text-lg font-semibold text-slate-900">
+            Hồ sơ cá nhân
+          </h2>
+          <p class="text-xs text-slate-500">
+            Chỉnh sửa họ tên hoặc mật khẩu, sau đó bấm Lưu. Email không đổi được tại đây.
+          </p>
+          <div
+            class="max-w-xl rounded-2xl border border-slate-200 bg-white p-5 md:p-6 space-y-4 text-sm shadow-sm"
+          >
+            <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
+              <div
+                class="w-12 h-12 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-800 text-base font-semibold"
+                id="profileAvatarInitial"
+              >
+                U
+              </div>
+              <div>
+                <p id="profileRole" class="text-xs text-slate-500">Vai trò: —</p>
+              </div>
+            </div>
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Họ và tên</span>
+              <input
+                id="profileNameInput"
+                type="text"
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40"
+                autocomplete="name"
+              />
+            </label>
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Email</span>
+              <input
+                id="profileEmailInput"
+                type="email"
+                readonly
+                class="mt-1 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-sm text-slate-600"
+              />
+            </label>
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Mật khẩu mới (để trống nếu giữ nguyên)</span>
+              <input
+                id="profilePasswordNew"
+                type="password"
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40"
+                autocomplete="new-password"
+                placeholder="Tối thiểu 6 ký tự"
+              />
+            </label>
+            <label class="block">
+              <span class="text-xs font-medium text-slate-600">Nhập lại mật khẩu mới</span>
+              <input
+                id="profilePasswordConfirm"
+                type="password"
+                class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40"
+                autocomplete="new-password"
+              />
+            </label>
+            <p id="profileSaveMsg" class="text-xs text-slate-500 min-h-[1rem]"></p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                id="btnProfileSave"
+                type="button"
+                class="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+              >
+                Lưu thay đổi
+              </button>
+              <button
+                id="btnProfileReload"
+                type="button"
+                class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              >
+                Tải lại từ máy chủ
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Booking modal (nền sáng, khung rộng) -->
+    <div
+      id="bookingModal"
+      class="fixed inset-0 bg-slate-900/35 backdrop-blur-sm items-center justify-center z-50 hidden p-4 sm:p-6 overflow-y-auto"
+    >
+      <div
+        class="bg-white rounded-2xl md:rounded-3xl border border-slate-200 w-full max-w-[min(100%,48rem)] mx-auto my-auto max-h-[min(92vh,900px)] overflow-y-auto shadow-xl shadow-slate-200/80 px-6 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10 text-sm"
+      >
+        <div class="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-lg md:text-xl font-semibold text-slate-900 tracking-tight">
+              Đặt phòng họp
+            </h3>
+            <p class="text-sm text-slate-500 mt-1">
+              Phòng đã chọn từ danh sách — chỉ cần điền thời gian và nội dung.
+            </p>
+          </div>
+          <button
+            id="btnCloseModal"
+            type="button"
+            class="shrink-0 w-9 h-9 rounded-full border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center text-base leading-none"
+            aria-label="Đóng"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form class="space-y-4 md:space-y-5 text-sm" id="bookingModalForm">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5"
+              >Tiêu đề cuộc họp</label
+            >
+            <input
+              id="modalMeetingTitle"
+              type="text"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              placeholder="Ví dụ: Họp dự án tuần 12"
+              value="Cuộc họp"
+            />
+          </div>
+          <input type="hidden" id="modalRoomId" value="" />
+          <div
+            id="modalRoomSummary"
+            class="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center gap-3"
+          >
+            <img
+              id="modalRoomImage"
+              src=""
+              alt=""
+              class="hidden w-full sm:w-40 h-28 sm:h-24 rounded-lg object-cover border border-slate-200 bg-white shrink-0"
+            />
+            <div>
+              <span class="text-slate-500">Phòng đặt:</span>
+              <span id="modalRoomName" class="font-semibold text-slate-900 ml-1">—</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div class="sm:col-span-2 lg:col-span-1">
+              <label class="block text-xs font-medium text-slate-600 mb-1.5"
+                >Ngày</label
+              >
+              <input
+                id="modalDate"
+                type="date"
+                class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1.5"
+                >Bắt đầu <span class="font-normal text-slate-400">(24h, GMT+7)</span></label
+              >
+              <input
+                id="modalStartTime"
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="09:00"
+                title="Giờ Việt Nam, định dạng 24h"
+                class="vn-time-input w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1.5"
+                >Kết thúc <span class="font-normal text-slate-400">(24h, GMT+7)</span></label
+              >
+              <input
+                id="modalEndTime"
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="10:00"
+                title="Giờ Việt Nam, định dạng 24h"
+                class="vn-time-input w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5"
+              >Số người tham gia</label
+            >
+            <input
+              id="modalParticipants"
+              type="number"
+              min="1"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+              placeholder="Ví dụ: 6"
+            />
+            <p id="modalCapacityHint" class="text-[11px] text-slate-500 mt-1.5 leading-relaxed"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5"
+              >Ghi chú cuộc họp</label
+            >
+            <textarea
+              id="modalNotes"
+              rows="4"
+              class="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 resize-y min-h-[100px]"
+              placeholder="Mục tiêu cuộc họp, nội dung chính..."
+            ></textarea>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-4 space-y-3">
+            <p class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Phương thức thanh toán</p>
+            <div class="flex flex-wrap gap-4 items-center">
+              <label class="inline-flex items-center gap-2 cursor-pointer text-sm text-slate-800">
+                <input type="radio" name="modalPaymentMethod" value="cash" class="text-emerald-600" checked />
+                Tiền mặt
+              </label>
+              <label class="inline-flex flex-wrap items-center gap-2 cursor-pointer text-sm text-slate-800">
+                <span class="inline-flex items-center gap-2">
+                  <input type="radio" name="modalPaymentMethod" value="transfer" class="text-emerald-600" />
+                  Chuyển khoản
+                </span>
+                <span
+                  id="modalTransferTotalPrice"
+                  class="hidden text-sm font-semibold text-emerald-700 tabular-nums"
+                ></span>
+              </label>
+            </div>
+            <div id="modalTransferOptions" class="hidden space-y-3 pt-1 border-t border-slate-200">
+              <p class="text-xs font-medium text-slate-600">Chuyển khoản qua</p>
+              <div class="flex flex-wrap gap-4">
+                <label class="inline-flex items-center gap-2 cursor-pointer text-sm text-slate-800">
+                  <input type="radio" name="modalPaymentChannel" value="momo" class="text-emerald-600" />
+                  Ví MoMo
+                </label>
+                <label class="inline-flex items-center gap-2 cursor-pointer text-sm text-slate-800">
+                  <input type="radio" name="modalPaymentChannel" value="bank" class="text-emerald-600" />
+                  Ngân hàng
+                </label>
+              </div>
+            </div>
+
+            <div id="modalQrPanel" class="hidden rounded-xl border-2 border-emerald-200 bg-emerald-50/60 px-4 py-4 space-y-3">
+              <p class="text-sm font-semibold text-emerald-900" id="modalQrTitle">Quét mã QR để thanh toán</p>
+              <p id="modalQrAmount" class="text-xs text-emerald-800 font-medium"></p>
+              <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+                <div class="shrink-0 rounded-xl border border-white bg-white p-2 shadow-sm">
+                  <img
+                    id="modalQrImage"
+                    src=""
+                    alt="Mã QR thanh toán"
+                    class="w-44 h-44 object-contain"
+                  />
+                </div>
+                <div class="flex-1 text-sm text-slate-700 space-y-1.5 min-w-0">
+                  <p id="modalQrAccountName" class="font-medium text-slate-900"></p>
+                  <p id="modalQrAccountDetail"></p>
+                  <p id="modalQrTransferNote" class="text-xs text-slate-500 pt-1">
+                    Nội dung chuyển khoản: <strong id="modalQrMemo">Dat phong MRP</strong>
+                  </p>
+                </div>
+              </div>
+              <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                Sau khi chuyển khoản xong, bấm <strong>「Đã chuyển khoản thành công」</strong> để hoàn tất đặt phòng.
+              </p>
+            </div>
+          </div>
+        </form>
+
+        <div class="mt-6 md:mt-8 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+          <button
+            id="btnModalCancel"
+            type="button"
+            class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 text-sm"
+          >
+            Hủy
+          </button>
+          <button
+            id="btnTransferSuccess"
+            type="button"
+            class="hidden px-5 py-2.5 rounded-xl bg-sky-600 text-white font-semibold hover:bg-sky-500 text-sm shadow-sm"
+          >
+            Đã chuyển khoản thành công
+          </button>
+          <button
+            id="btnModalConfirm"
+            type="button"
+            class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-500 text-sm shadow-sm shadow-emerald-600/20"
+          >
+            Xác nhận đặt phòng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking detail modal -->
+    <div
+      id="bookingDetailModal"
+      class="fixed inset-0 bg-slate-900/35 backdrop-blur-sm items-center justify-center z-50 hidden p-4 sm:p-6 overflow-y-auto"
+    >
+      <div
+        class="bg-white rounded-2xl md:rounded-3xl border border-slate-200 w-full max-w-[min(100%,44rem)] mx-auto my-auto max-h-[min(92vh,820px)] overflow-y-auto shadow-xl shadow-slate-200/80 px-6 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10"
+      >
+        <div class="flex items-start justify-between gap-4 mb-5">
+          <div>
+            <h3 class="text-lg md:text-xl font-semibold text-slate-900 tracking-tight">
+              Chi tiết cuộc họp
+            </h3>
+            <p class="text-sm text-slate-500 mt-1">
+              Xem lại nội dung bạn đã nhập khi đặt phòng.
+            </p>
+          </div>
+          <button
+            id="btnCloseDetailModal"
+            type="button"
+            class="shrink-0 w-9 h-9 rounded-full border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center text-base leading-none"
+            aria-label="Đóng"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <p class="text-sm font-semibold text-slate-900" id="detailMeetingTitle">—</p>
+            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+              <span id="detailRoom">—</span>
+              <span class="text-slate-300">•</span>
+              <span id="detailTime">—</span>
+              <span class="text-slate-300">•</span>
+              <span id="detailStatus" class="text-xs font-medium text-slate-500">—</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <p class="text-xs font-medium text-slate-600">Số người tham gia</p>
+              <p class="mt-1 text-sm font-semibold text-slate-900" id="detailParticipants">—</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <p class="text-xs font-medium text-slate-600">Thanh toán</p>
+              <p class="mt-1 text-sm font-semibold text-slate-900" id="detailPayment">—</p>
+            </div>
+            <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 sm:col-span-2">
+              <p class="text-xs font-medium text-slate-600">Ghi chú</p>
+              <p class="mt-1 text-sm text-slate-800 whitespace-pre-wrap break-words" id="detailNotes">—</p>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              id="btnDetailClose"
+              type="button"
+              class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 text-sm"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./dashboard.js?v=32"></script>
+  </body>
+</html>
+
