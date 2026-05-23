@@ -103,17 +103,19 @@ def verify_facebook_access_token(access_token: str) -> dict[str, str]:
         )
     )
     email = (profile.get("email") or "").strip().lower()
+
+    facebook_id = str(profile.get("id") or "")
+    
     if not email:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tài khoản Facebook cần cấp quyền email để đăng nhập",
-        )
+        email = f"{facebook_id}@facebook.com"
+    
     name = (profile.get("name") or email.split("@")[0]).strip()
+    
     return {
         "email": email,
         "name": name,
         "provider": "facebook",
-        "provider_id": str(profile.get("id") or ""),
+        "provider_id": facebook_id,
     }
 
 
