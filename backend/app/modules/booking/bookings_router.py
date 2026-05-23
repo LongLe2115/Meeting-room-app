@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
 from ...db import db
-from ...schemas import BookingBusy, BookingCreate, BookingDetail, BookingPublic
+from ...schemas import BookingBusy, BookingCancelBody, BookingCreate, BookingDetail, BookingPublic
 from ...security import get_current_user, require_role
 
 
@@ -272,7 +272,11 @@ def create_booking(body: BookingCreate, user=Depends(get_current_user)):
 
 
 @router.post("/{booking_id}/cancel", response_model=BookingPublic)
-def cancel_booking(booking_id: int, user=Depends(get_current_user)):
+def cancel_booking(
+    booking_id: int,
+    body: BookingCancelBody = Body(default_factory=BookingCancelBody),
+    user=Depends(get_current_user),
+):
     with db() as conn:
         row = conn.execute(
             f"""
@@ -288,10 +292,31 @@ def cancel_booking(booking_id: int, user=Depends(get_current_user)):
             return _row_to_booking(row)
 
         is_owner = row["organizer_id"] == user["id"]
-        if not is_owner and user["role"] != "admin":
+        is_admin = user.get("role") == "admin"
+        if not is_owner and not is_admin:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-        conn.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ?", (booking_id,))
+        booking = _row_to_booking(row)
+        if not is_admin:
+            if booking["payment_method"] == "transfer" and not body.refund_confirmed:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cần xác nhận đã nhận hoàn tiền trước khi hủy đặt phòng",
+                )
+            if booking["payment_method"] == "cash" and not body.refund_confirmed:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Cần xác nhận trước khi hủy đặt phòng",
+                )
+
+        refund_at = _to_iso(datetime.now(timezone.utc)) if body.refund_confirmed else None
+        try:
+            conn.execute(
+                "UPDATE bookings SET status = 'cancelled', refund_confirmed_at = ? WHERE id = ?",
+                (refund_at, booking_id),
+            )
+        except Exception:
+            conn.execute("UPDATE bookings SET status = 'cancelled' WHERE id = ?", (booking_id,))
         updated = conn.execute(
             f"""
             SELECT {_BOOKING_COLS}

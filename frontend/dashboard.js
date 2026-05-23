@@ -25,6 +25,7 @@ const DASH = {
   supportActiveId: null,
   supportPollTimer: null,
   supportLastCommentId: 0,
+  pendingCancelBookingId: null,
 };
 
 const SUPPORT_CATEGORY_LABELS = {
@@ -697,6 +698,26 @@ function getBookingPriceBreakdown() {
   return { hourly: hourly, hours: hours, total: total, valid: true };
 }
 
+function getBookingDurationHoursFromIso(start_at, end_at) {
+  const start = new Date(start_at);
+  const end = new Date(end_at);
+  if (isNaN(start.getTime()) || isNaN(end.getTime()) || end <= start) return null;
+  return (end.getTime() - start.getTime()) / 3600000;
+}
+
+function getBookingRefundBreakdown(booking) {
+  const room = DASH.rooms.find(function (r) {
+    return r.id === booking.room_id;
+  });
+  const hourly = room ? Number(room.price) || 0 : 0;
+  const hours = getBookingDurationHoursFromIso(booking.start_at, booking.end_at);
+  if (hours == null) {
+    return { hourly: hourly, hours: 0, total: 0, valid: false };
+  }
+  const total = hourly > 0 ? Math.round(hourly * hours) : 0;
+  return { hourly: hourly, hours: hours, total: total, valid: true };
+}
+
 function formatTransferTotalText(breakdown) {
   const b = breakdown || getBookingPriceBreakdown();
   if (!b.valid) return "";
@@ -1332,18 +1353,8 @@ function renderMyMeetings() {
       btn.className =
         "px-3 py-1.5 rounded-full border border-slate-300 text-xs text-slate-700 hover:bg-slate-100 whitespace-nowrap";
       btn.textContent = "Hủy đặt";
-      btn.addEventListener("click", async function () {
-        if (!confirm("Hủy cuộc họp này?")) return;
-        try {
-          if (typeof api === "function") {
-            await api("/bookings/" + b.id + "/cancel", { method: "POST" });
-          } else {
-            throw new Error("Thiếu api()");
-          }
-          await loadData();
-        } catch (err) {
-          alert("Không hủy được: " + (err && err.message ? err.message : "Lỗi"));
-        }
+      btn.addEventListener("click", function () {
+        openCancelRefundModal(b.id);
       });
       actions.appendChild(btn);
     }
@@ -1364,6 +1375,145 @@ function hideBookingDetailModal() {
   if (!m) return;
   m.classList.add("hidden");
   m.classList.remove("flex");
+}
+
+function showCancelRefundModal() {
+  const m = $("cancelRefundModal");
+  if (!m) return;
+  m.classList.remove("hidden");
+  m.classList.add("flex");
+}
+
+function hideCancelRefundModal() {
+  const m = $("cancelRefundModal");
+  if (!m) return;
+  m.classList.add("hidden");
+  m.classList.remove("flex");
+  DASH.pendingCancelBookingId = null;
+  const chk = $("chkCancelRefundConfirmed");
+  if (chk) chk.checked = false;
+  updateCancelRefundConfirmButton();
+}
+
+function updateCancelRefundConfirmButton() {
+  const btn = $("btnCancelRefundConfirm");
+  const chk = $("chkCancelRefundConfirmed");
+  if (btn) btn.disabled = !(chk && chk.checked);
+}
+
+function openCancelRefundModal(bookingId) {
+  const b = DASH.myBookings.find(function (x) {
+    return x.id === bookingId;
+  });
+  if (!b || b.status !== "active") {
+    alert("Không tìm thấy đặt phòng để hủy.");
+    return;
+  }
+  DASH.pendingCancelBookingId = bookingId;
+  const room = DASH.rooms.find(function (r) {
+    return r.id === b.room_id;
+  });
+  const isTransfer = b.payment_method === "transfer";
+  const breakdown = getBookingRefundBreakdown(b);
+
+  if ($("cancelRefundSubtitle")) {
+    $("cancelRefundSubtitle").textContent = isTransfer
+      ? "Vui lòng xác nhận đã nhận hoàn tiền trước khi hủy."
+      : "Xác nhận trước khi hủy đặt phòng tiền mặt.";
+  }
+  if ($("cancelRefundTitle")) $("cancelRefundTitle").textContent = b.title || "Cuộc họp";
+  if ($("cancelRefundMeta")) {
+    $("cancelRefundMeta").textContent =
+      (room ? room.name : "Phòng " + b.room_id) +
+      " · " +
+      formatVnTimeRange(new Date(b.start_at), new Date(b.end_at));
+  }
+  if ($("cancelRefundPayment")) {
+    $("cancelRefundPayment").textContent =
+      "Thanh toán: " + formatPaymentLabel(b.payment_method, b.payment_channel);
+  }
+  const amountEl = $("cancelRefundAmount");
+  if (amountEl) {
+    if (isTransfer && breakdown.valid && breakdown.total > 0) {
+      amountEl.textContent =
+        "Số tiền hoàn dự kiến: " +
+        breakdown.total.toLocaleString("vi-VN") +
+        " ₫ (" +
+        formatTransferTotalText(breakdown) +
+        ")";
+      amountEl.classList.remove("hidden");
+    } else if (isTransfer) {
+      amountEl.textContent = "Số tiền hoàn: liên hệ quản trị (theo giá phòng × giờ đặt).";
+      amountEl.classList.remove("hidden");
+    } else {
+      amountEl.classList.add("hidden");
+    }
+  }
+  if ($("cancelRefundPolicy")) {
+    $("cancelRefundPolicy").textContent = isTransfer
+      ? "Hệ thống sẽ hoàn qua kênh bạn đã chuyển khoản (MoMo/ngân hàng). Chỉ hủy thành công sau khi bạn đã nhận đủ tiền hoàn."
+      : "Đặt phòng tiền mặt: vui lòng nhận hoàn tiền tại quầy (nếu có) trước khi xác nhận hủy.";
+  }
+  const labelEl = $("cancelRefundCheckboxLabel");
+  if (labelEl) {
+    labelEl.textContent = isTransfer
+      ? "Tôi đã xác nhận đã nhận hoàn tiền"
+      : "Tôi xác nhận đồng ý hủy đặt phòng";
+  }
+  const chk = $("chkCancelRefundConfirmed");
+  if (chk) chk.checked = false;
+  updateCancelRefundConfirmButton();
+  showCancelRefundModal();
+}
+
+async function confirmCancelWithRefund() {
+  const id = DASH.pendingCancelBookingId;
+  if (!id) return;
+  const chk = $("chkCancelRefundConfirmed");
+  if (!chk || !chk.checked) {
+    alert("Vui lòng tick xác nhận trước khi hủy.");
+    return;
+  }
+  const btn = $("btnCancelRefundConfirm");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Đang hủy...";
+  }
+  try {
+    await api("/bookings/" + id + "/cancel", {
+      method: "POST",
+      body: { refund_confirmed: true },
+    });
+    hideCancelRefundModal();
+    hideBookingDetailModal();
+    await loadData();
+    alert("Đã hủy đặt phòng thành công.");
+  } catch (err) {
+    alert("Không hủy được: " + (err && err.message ? err.message : "Lỗi"));
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Xác nhận hủy đặt phòng";
+      updateCancelRefundConfirmButton();
+    }
+  }
+}
+
+function initCancelRefundModal() {
+  const chk = $("chkCancelRefundConfirmed");
+  if (chk) chk.addEventListener("change", updateCancelRefundConfirmButton);
+  if ($("btnCancelRefundClose")) {
+    $("btnCancelRefundClose").addEventListener("click", hideCancelRefundModal);
+  }
+  if ($("btnCancelRefundConfirm")) {
+    $("btnCancelRefundConfirm").addEventListener("click", confirmCancelWithRefund);
+  }
+  const m = $("cancelRefundModal");
+  if (m) {
+    m.addEventListener("click", function (e) {
+      if (e.target === m) hideCancelRefundModal();
+    });
+  }
 }
 
 function openBookingDetailModal(bookingId) {
@@ -2439,6 +2589,7 @@ initBookingModal();
 initBookingDetailModal();
 initProfileForm();
 initVnTimePickers();
+initCancelRefundModal();
 initSupportUi();
 initFilterUi();
 initAvailableSlotFilter();

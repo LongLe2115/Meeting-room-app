@@ -139,8 +139,20 @@ function bookingCard(b) {
     btn.className = "btn btn-ghost";
     btn.textContent = "Cancel";
     btn.addEventListener("click", async () => {
+      if (
+        b.payment_method === "transfer" &&
+        !confirm(
+          "Bạn đã nhận đủ tiền hoàn chưa?\nChỉ hủy sau khi đã nhận hoàn tiền chuyển khoản."
+        )
+      ) {
+        return;
+      }
+      if (!confirm("Xác nhận hủy đặt phòng?")) return;
       try {
-        const updated = await api(`/bookings/${b.id}/cancel`, { method: "POST" });
+        const updated = await api(`/bookings/${b.id}/cancel`, {
+          method: "POST",
+          body: { refund_confirmed: true },
+        });
         log("Cancelled booking", updated);
         $("btnLoadMyBookings").click();
       } catch (e) {

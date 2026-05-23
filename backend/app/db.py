@@ -8,7 +8,11 @@ from pathlib import Path
 
 DB_PATH = Path(os.getenv("APP_DB_PATH", "data/app.db"))
 _db_choice = os.getenv("APP_DB", "").lower()
-_use_postgresql = _db_choice == "postgresql" or bool(os.getenv("APP_POSTGRES_DATABASE"))
+_use_postgresql = (
+    _db_choice == "postgresql"
+    or bool(os.getenv("APP_POSTGRES_DATABASE"))
+    or bool(os.getenv("APP_DATABASE_URL") or os.getenv("DATABASE_URL"))
+)
 
 
 def _connect() -> sqlite3.Connection:
@@ -127,6 +131,7 @@ def init_booking_db() -> None:
         _ensure_column(conn, table="rooms", column="price", col_def="REAL NOT NULL DEFAULT 0")
         _ensure_column(conn, table="bookings", column="payment_method", col_def="TEXT NOT NULL DEFAULT 'cash'")
         _ensure_column(conn, table="bookings", column="payment_channel", col_def="TEXT NOT NULL DEFAULT ''")
+        _ensure_column(conn, table="bookings", column="refund_confirmed_at", col_def="TEXT")
 
 
 def init_ticket_db() -> None:

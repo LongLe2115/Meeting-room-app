@@ -20,8 +20,13 @@ if (typeof window !== "undefined") window.$ = $;
 })();
 
 function getApiBase() {
-  if (typeof window !== "undefined" && window.location.port === "8000") return "";
-  return "http://127.0.0.1:8000";
+  if (typeof window === "undefined") return "";
+  var loc = window.location;
+  if (loc.port === "8000") return "";
+  if (loc.hostname === "127.0.0.1" || loc.hostname === "localhost") {
+    return "http://127.0.0.1:8000";
+  }
+  return "https://project-proposal-gvt8.onrender.com";
 }
 
 /** Kiểm tra backend có đang chạy không (GET /health). */

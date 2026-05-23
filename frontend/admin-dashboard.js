@@ -652,7 +652,10 @@
       body.querySelectorAll(".cancel-booking").forEach(function (btn) {
         btn.addEventListener("click", function () {
           if (!confirm("Hủy đặt phòng này?")) return;
-          api("/bookings/" + btn.getAttribute("data-id") + "/cancel", { method: "POST" })
+          api("/bookings/" + btn.getAttribute("data-id") + "/cancel", {
+            method: "POST",
+            body: { refund_confirmed: true },
+          })
             .then(function () {
               toast("Đã hủy đặt phòng.");
               loadBookings();

@@ -231,6 +231,12 @@ class BookingDetail(BookingPublic):
     organizer_email: str = ""
 
 
+class BookingCancelBody(BaseModel):
+    """User phải xác nhận hoàn tiền (chuyển khoản) trước khi hủy thành công."""
+
+    refund_confirmed: bool = False
+
+
 class ErrorResponse(BaseModel):
     detail: str
     extra: dict[str, Any] | None = None

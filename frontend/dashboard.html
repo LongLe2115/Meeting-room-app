@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Meeting Room Pro</title>
-    <script src="./shared.js?v=11"></script>
+    <script src="./shared.js?v=12"></script>
     <script>
       (function () {
         if (typeof isUserSessionValid !== "function" || !isUserSessionValid()) {
@@ -1036,6 +1036,53 @@
       </div>
     </div>
 
+    <!-- Hủy đặt phòng — xác nhận hoàn tiền -->
+    <div
+      id="cancelRefundModal"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm items-center justify-center z-[60] hidden p-4 sm:p-6 overflow-y-auto"
+    >
+      <div
+        class="bg-white rounded-2xl border border-slate-200 w-full max-w-md mx-auto shadow-xl px-6 py-6 space-y-4"
+      >
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">Hoàn tiền &amp; hủy đặt phòng</h3>
+          <p class="text-xs text-slate-500 mt-1" id="cancelRefundSubtitle">—</p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm space-y-2">
+          <p class="font-medium text-slate-900" id="cancelRefundTitle">—</p>
+          <p class="text-xs text-slate-600" id="cancelRefundMeta">—</p>
+          <p class="text-xs text-slate-600" id="cancelRefundPayment">—</p>
+          <p class="text-sm font-semibold text-emerald-700 hidden" id="cancelRefundAmount">—</p>
+        </div>
+        <p class="text-xs text-slate-600 leading-relaxed" id="cancelRefundPolicy">
+          Sau khi bạn nhận đủ số tiền hoàn, tick xác nhận bên dưới rồi bấm hủy đặt phòng.
+        </p>
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input id="chkCancelRefundConfirmed" type="checkbox" class="mt-0.5 rounded border-slate-300 text-emerald-600" />
+          <span class="text-sm text-slate-700" id="cancelRefundCheckboxLabel"
+            >Tôi đã xác nhận đã nhận hoàn tiền</span
+          >
+        </label>
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-1">
+          <button
+            id="btnCancelRefundClose"
+            type="button"
+            class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
+          >
+            Đóng
+          </button>
+          <button
+            id="btnCancelRefundConfirm"
+            type="button"
+            disabled
+            class="px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Xác nhận hủy đặt phòng
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Booking detail modal -->
     <div
       id="bookingDetailModal"
@@ -1103,7 +1150,7 @@
       </div>
     </div>
 
-    <script src="./dashboard.js?v=32"></script>
+    <script src="./dashboard.js?v=33"></script>
   </body>
 </html>
 
