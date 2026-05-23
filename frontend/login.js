@@ -443,7 +443,7 @@ $("btnFacebookLogin")?.addEventListener("click", function () {
           alert("Đăng nhập Facebook thất bại:\n" + formatApiError(e));
         });
     },
-    { scope: "email,public_profile" }
+    { scope: "public_profile" }
   );
 });
 
