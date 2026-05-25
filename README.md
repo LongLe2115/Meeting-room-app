@@ -10,11 +10,11 @@ Repository: https://github.com/LongLe2115/project-proposal
 | STT | Họ tên | MSSV |
 |-----|--------|------|
 | 1 | Lê Quang Long | 23636861 |
-| 2 | Nguyễn Cẩm Hà | 2363 |
-| 3 | Lục Vỹ Kiệt | — |
-| 4 | Dương Hồng Phong | — |
+| 2 | Nguyễn Cẩm Hà | 23634731 |
+| 3 | Lục Vỹ Kiệt |  23631351 |
+| 4 | Dương Hồng Phong | 23725131 |
 
-**Lưu ý môn học:** Chỉ dùng một Git repository duy nhất; đổi link repo có thể bị trừ điểm.
+
 
 ---
 
