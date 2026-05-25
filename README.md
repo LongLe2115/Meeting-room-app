@@ -10,7 +10,7 @@ Repository: https://github.com/LongLe2115/project-proposal
 | STT | Họ tên | MSSV |
 |-----|--------|------|
 | 1 | Lê Quang Long | 23636861 |
-| 2 | Nguyễn Cẩm Hà | — |
+| 2 | Nguyễn Cẩm Hà | 2363 |
 | 3 | Lục Vỹ Kiệt | — |
 | 4 | Dương Hồng Phong | — |
 
