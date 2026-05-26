@@ -299,6 +299,13 @@ pip install -r requirements.txt
 copy .env.example .env
 # Chỉnh .env (PostgreSQL, JWT secret, …)
 ```
+### Nếu lỗi môi trường chạy các lệnh sau với các phiên bản khác 
+```
+Remove-Item -Recurse -Force .venv # xóa môi trường cũ
+py -m venv .venv # tạo env mới
+.venv\Scripts\Activate # activate môi trường
+pip install -r requirements.txt # cài package 
+```
 
 ### 10.2 Chạy server
 
